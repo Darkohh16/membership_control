@@ -4,18 +4,20 @@ from django.utils import timezone
 
 
 class Asistencia(models.Model):
-    socio = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Socio")
-    fecha_hora = models.DateTimeField(default=timezone.now, verbose_name="Fecha y Hora de Entrada")
-    metodo_registro = models.CharField(
-        max_length=20,
-        choices=[
-            ('MANUAL', 'Búsqueda Manual'),
-            ('QR', 'Código QR'),
-        ],
-        default='MANUAL',
-        verbose_name="Método de Registro"
+    socio = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        verbose_name="Socio"
     )
-    notas = models.TextField(blank=True, null=True, verbose_name="Notas")
+    fecha_hora = models.DateTimeField(
+        default=timezone.now,
+        verbose_name="Fecha y Hora de Entrada"
+    )
+    notas = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Notas"
+    )
 
     class Meta:
         verbose_name = "Asistencia"

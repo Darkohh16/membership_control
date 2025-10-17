@@ -5,10 +5,10 @@
 /httpRequests/
 
 # Python
+__pycache__/
 *.pyc
 *.pyo
-__pycache__/
-*.py[cod]
+*.pyd
 
 # Django
 *.log
