@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %} Dashboard {% endblock %}
+{% block content %}
+
+<div class="min-h-screen flex bg-gray-100">
+  <!-- Contenido principal -->
+  <main class="flex-grow p-6">
+    <h1 class="text-2xl font-semibold text-gray-700 mb-4">Widgets</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Tarjetas -->
+      <div class="bg-white rounded-xl shadow p-4">
+        <h2 class="text-gray-500 text-sm">Total de Miembros</h2>
+        <p class="text-2xl font-bold text-blue-600">124</p>
+      </div>
+
+      <div class="bg-white rounded-xl shadow p-4">
+        <h2 class="text-gray-500 text-sm">Membresías activas</h2>
+        <p class="text-2xl font-bold text-green-600">87</p>
+      </div>
+
+      <div class="bg-white rounded-xl shadow p-4">
+        <h2 class="text-gray-500 text-sm">Pagos pendientes</h2>
+        <p class="text-2xl font-bold text-red-600">12</p>
+      </div>
+        <h2 class="text-gray-500">Y mas wbadas que deberian ir aqui</h2>
+    </div>
+  </main>
+</div>
+{% endblock %}
