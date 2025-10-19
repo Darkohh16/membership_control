@@ -63,20 +63,60 @@ def registrar_pago(request):
     Vista para registrar un nuevo pago.
     Solo accesible para administradores.
     """
+    from accounts.models import Usuario
+    from decimal import Decimal
+    
     # Verificar que el usuario sea administrador
     if request.user.perfil != 1:  # 1 = Administrador
         messages.error(request, 'No tienes permisos para realizar esta acción.')
-        return redirect('listar_pagos')
+        return redirect('payments:listar_pagos')
     
     if request.method == 'POST':
-        # Aquí iría la lógica para crear el pago
-        # Por ahora solo mostramos el formulario
-        messages.success(request, 'Pago registrado exitosamente.')
-        return redirect('listar_pagos')
+        try:
+            # Obtener datos del formulario
+            usuario_id = request.POST.get('usuario')
+            monto = request.POST.get('monto')
+            metodo_pago = request.POST.get('metodo_pago')
+            estado = request.POST.get('estado')
+            concepto = request.POST.get('concepto', '')
+            notas = request.POST.get('notas', '')
+            
+            # Validaciones
+            if not usuario_id or not monto or not metodo_pago or not estado:
+                messages.error(request, 'Todos los campos obligatorios deben ser completados.')
+                return redirect('payments:registrar_pago')
+            
+            # Obtener el usuario
+            usuario = Usuario.objects.get(username=usuario_id)
+            
+            # Crear el pago
+            pago = Pago.objects.create(
+                usuario=usuario,
+                monto=Decimal(monto),
+                metodo_pago=int(metodo_pago),
+                estado=int(estado),
+                concepto=concepto,
+                notas=notas,
+                registrado_por=request.user
+            )
+            
+            messages.success(request, f'Pago registrado exitosamente. Recibo: {pago.numero_recibo}')
+            return redirect('payments:detalle_pago', pago_id=pago.id)
+            
+        except Usuario.DoesNotExist:
+            messages.error(request, 'El usuario seleccionado no existe.')
+            return redirect('payments:registrar_pago')
+        except Exception as e:
+            messages.error(request, f'Error al registrar el pago: {str(e)}')
+            return redirect('payments:registrar_pago')
+    
+    # Obtener todos los usuarios para el formulario
+    usuarios = Usuario.objects.all().order_by('username')
     
     context = {
         'metodos_pago': METODOS_PAGO,
         'estados_pago': ESTADOS_PAGO,
+        'usuarios': usuarios,
     }
     
     return render(request, 'payments/registrar_pago.html', context)

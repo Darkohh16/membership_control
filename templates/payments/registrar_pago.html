@@ -1,0 +1,172 @@
+{% extends 'base.html' %}
+{% block title %}Registrar Pago - MembershipControl{% endblock %}
+
+{% block content %}
+<div class="min-h-screen w-full bg-gray-100 p-6">
+    <div class="max-w-3xl mx-auto">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Registrar Nuevo Pago</h1>
+            <p class="text-gray-600">Complete los datos del pago de membresía</p>
+        </div>
+
+        <!-- Formulario -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <form method="POST" id="pagoForm">
+                {% csrf_token %}
+                
+                <!-- Selección de Usuario -->
+                <div class="mb-4">
+                    <label for="usuario" class="block text-sm font-medium text-gray-700 mb-2">
+                        Usuario <span class="text-red-500">*</span>
+                    </label>
+                    <select name="usuario" 
+                            id="usuario"
+                            required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Seleccione un usuario...</option>
+                        {% for usuario in usuarios %}
+                        <option value="{{ usuario.username }}">
+                            {{ usuario.first_name }} {{ usuario.last_name }} (@{{ usuario.username }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">Seleccione el usuario que realizará el pago</p>
+                </div>
+
+                <!-- Monto -->
+                <div class="mb-4">
+                    <label for="monto" class="block text-sm font-medium text-gray-700 mb-2">
+                        Monto (S/) <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" 
+                           name="monto" 
+                           id="monto"
+                           step="0.01"
+                           min="0.01"
+                           required
+                           placeholder="0.00"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="mt-1 text-xs text-gray-500">Ingrese el monto del pago en soles</p>
+                </div>
+
+                <!-- Método de Pago -->
+                <div class="mb-4">
+                    <label for="metodo_pago" class="block text-sm font-medium text-gray-700 mb-2">
+                        Método de Pago <span class="text-red-500">*</span>
+                    </label>
+                    <select name="metodo_pago" 
+                            id="metodo_pago"
+                            required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Seleccione un método...</option>
+                        {% for nombre, valor in metodos_pago.items %}
+                        <option value="{{ valor }}">{{ nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Estado del Pago -->
+                <div class="mb-4">
+                    <label for="estado" class="block text-sm font-medium text-gray-700 mb-2">
+                        Estado del Pago <span class="text-red-500">*</span>
+                    </label>
+                    <select name="estado" 
+                            id="estado"
+                            required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        {% for nombre, valor in estados_pago.items %}
+                        <option value="{{ valor }}" {% if valor == 2 %}selected{% endif %}>{{ nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Concepto -->
+                <div class="mb-4">
+                    <label for="concepto" class="block text-sm font-medium text-gray-700 mb-2">
+                        Concepto
+                    </label>
+                    <input type="text" 
+                           name="concepto" 
+                           id="concepto"
+                           placeholder="Ej: Pago de membresía mensual - Enero 2025"
+                           maxlength="200"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="mt-1 text-xs text-gray-500">Descripción o concepto del pago (opcional)</p>
+                </div>
+
+                <!-- Notas -->
+                <div class="mb-6">
+                    <label for="notas" class="block text-sm font-medium text-gray-700 mb-2">
+                        Notas Adicionales
+                    </label>
+                    <textarea name="notas" 
+                              id="notas"
+                              rows="3"
+                              placeholder="Información adicional sobre el pago..."
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    <p class="mt-1 text-xs text-gray-500">Notas o comentarios adicionales (opcional)</p>
+                </div>
+
+                <!-- Información de Recibo -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <h3 class="text-sm font-medium text-blue-800 mb-2">ℹ️ Información</h3>
+                    <p class="text-sm text-blue-700">
+                        El número de recibo se generará automáticamente al guardar el pago.
+                        La fecha de pago se registrará como la fecha y hora actual.
+                    </p>
+                </div>
+
+                <!-- Botones -->
+                <div class="flex gap-3">
+                    <button type="submit" 
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg transition shadow-md">
+                        💾 Registrar Pago
+                    </button>
+                    <a href="{% url 'payments:listar_pagos' %}" 
+                       class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-medium px-6 py-3 rounded-lg transition text-center shadow-md">
+                        ❌ Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Ayuda -->
+        <div class="mt-6 bg-white rounded-lg shadow-md p-4">
+            <h3 class="font-semibold text-gray-800 mb-2">💡 Ayuda</h3>
+            <ul class="text-sm text-gray-600 space-y-1">
+                <li>• Todos los campos marcados con (*) son obligatorios</li>
+                <li>• El monto debe ser mayor a 0.01 soles</li>
+                <li>• Por defecto, el estado se establece como "Completado"</li>
+                <li>• Puedes agregar notas adicionales para referencia futura</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validación del formulario
+    const form = document.getElementById('pagoForm');
+    form.addEventListener('submit', function(e) {
+        const monto = parseFloat(document.getElementById('monto').value);
+        const usuario = document.getElementById('usuario').value;
+        
+        if (!usuario) {
+            e.preventDefault();
+            alert('Debe seleccionar un usuario');
+            return false;
+        }
+        
+        if (monto <= 0 || isNaN(monto)) {
+            e.preventDefault();
+            alert('El monto debe ser mayor a 0');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
