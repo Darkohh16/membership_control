@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Nuevo Socio{% endblock %}
+
+{% block content %}
+<div class="flex-grow bg-gray-100 p-6">
+  <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-xl p-8">
+    <h2 class="text-2xl font-bold text-gray-700 mb-6 text-center">Registrar Nuevo Socio</h2>
+
+    <form method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% csrf_token %}
+      <!-- Nombre -->
+      <div>
+        <label for="nombre" class="block text-gray-600 font-medium mb-1">Nombre</label>
+        <input type="text" id="nombre" name="nombre"
+          class="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Ej. Carlos" required>
+      </div>
+
+      <!-- Apellido -->
+      <div>
+        <label for="apellido" class="block text-gray-600 font-medium mb-1">Apellido</label>
+        <input type="text" id="apellido" name="apellido"
+          class="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Ej. González" required>
+      </div>
+
+      <!-- DNI / Carnet -->
+      <div>
+        <label for="dni_carnet" class="block text-gray-600 font-medium mb-1">DNI / Carnet</label>
+        <input type="text" id="dni_carnet" name="dni_carnet"
+          class="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Ej. 12345678" required>
+      </div>
+
+      <!-- Correo -->
+      <div>
+        <label for="correo" class="block text-gray-600 font-medium mb-1">Correo Electrónico</label>
+        <input type="email" id="correo" name="correo"
+          class="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="correo@ejemplo.com" required>
+      </div>
+
+      <!-- Celular -->
+      <div>
+        <label for="celular" class="block text-gray-600 font-medium mb-1">Celular</label>
+        <input type="text" id="celular" name="celular"
+          class="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="987654321" required>
+      </div>
+
+      <!-- Fecha de nacimiento -->
+      <div>
+        <label for="fecha_nacimiento" class="block text-gray-600 font-medium mb-1">Fecha de Nacimiento</label>
+        <input type="date" id="fecha_nacimiento" name="fecha_nacimiento"
+          class="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500" required>
+      </div>
+
+      <!-- Dirección -->
+      <div class="md:col-span-2">
+        <label for="direccion" class="block text-gray-600 font-medium mb-1">Dirección</label>
+        <input type="text" id="direccion" name="direccion"
+          class="w-full border-gray-300 rounded-lg px-4 py-2 focus:ring-blue-500 focus:border-blue-500"
+          placeholder="Ej. Av. Los Próceres 123, Lima">
+      </div>
+
+      <!-- Botones -->
+      <div class="md:col-span-2 flex justify-end gap-4 mt-4">
+        <a href="{% url 'socios_general' %}" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-400 transition">
+          Cancelar
+        </a>
+        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
+          Guardar Socio
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
