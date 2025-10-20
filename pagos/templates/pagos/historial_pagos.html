@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Pagos - {{ socio.nombre }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f7f9f8; margin: 40px; }
+        h1 { color: #2b8a3e; }
+        h3 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+        th { background: #2b8a3e; color: white; }
+        tr:nth-child(even) { background: #e6f4ea; }
+        .footer { margin-top: 20px; font-size: 14px; color: #555; }
+    </style>
+</head>
+<body>
+    <h1>Historial de Pagos</h1>
+    <h3>Socio: {{ socio.nombre }} ({{ socio.tipo_membresia.nombre }})</h3>
+    <p>Fecha de inicio: {{ socio.fecha_inicio }} | Fecha de fin: {{ socio.fecha_fin }} | Estado: {{ socio.estado }}</p>
+    <p>Días restantes: {{ socio.dias_restantes }} días</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha de Pago</th>
+                <th>Monto</th>
+                <th>Método de Pago</th>
+                <th>Observación</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pago in pagos %}
+            <tr>
+                <td>{{ pago.fecha_pago }}</td>
+                <td>S/ {{ pago.monto }}</td>
+                <td>{{ pago.get_metodo_pago_display }}</td>
+                <td>{{ pago.observacion|default:"—" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" style="text-align:center;">No hay pagos registrados para este socio.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p><a href="/admin/">Volver al panel de administración</a></p>
+    </div>
+</body>
+</html>
