@@ -130,6 +130,18 @@ USE_TZ = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
+# Duración de la sesión en segundos
+#SESSION_COOKIE_AGE = None
+
+# Cerrar la sesión cuando el usuario cierra el navegador
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# Usar cookies seguros (solo transmitir por HTTPS)
+SESSION_COOKIE_SECURE = False # Cambiar a True en producción con HTTPS
+
+# Motor de almacenamiento de sesiones
+SESSION_ENGINE = 'django.contrib.sessions.backends.db' # Almacenar en la base de datos
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
