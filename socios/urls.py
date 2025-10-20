@@ -1,0 +1,12 @@
+from django.contrib import admin
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from django.contrib.auth.decorators import login_required
+from accounts.views import *
+from core.views import *
+
+
+urlpatterns = [
+    path('socios/', include('accounts.urls')),
+]
