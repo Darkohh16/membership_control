@@ -2,6 +2,8 @@ from django.contrib.auth.models import BaseUserManager
 from accounts.constants import *
 from django.utils.crypto import get_random_string
 
+from membership_control.choices import Perfiles
+
 
 class UserManager(BaseUserManager):
     def create_user(self, email, username, first_name, last_name, perfil=None, password=None, **extra_fields):
@@ -15,7 +17,7 @@ class UserManager(BaseUserManager):
             raise ValueError('Se requiere el apellido del usuario')
 
         if perfil is None:
-            perfil = perfiles['Usuario']
+            perfil = Perfiles.USUARIO
 
         extra_fields.setdefault('is_superuser', False)
         extra_fields.setdefault('is_staff', True)
@@ -58,7 +60,7 @@ class UserManager(BaseUserManager):
             first_name=first_name,
             last_name=last_name,
             email=email,
-            perfil=perfiles['Administrador'],
+            perfil=Perfiles.ADMINISTRADOR,
             password=password,
             **extra_fields
         )
