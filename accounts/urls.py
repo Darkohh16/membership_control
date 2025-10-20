@@ -7,5 +7,4 @@ from accounts.views import *
 from core.views import *
 
 urlpatterns = [
-
 ]

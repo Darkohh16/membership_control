@@ -1,6 +1,7 @@
 from django.db import models
 
 class Socio(models.Model):
+    id = models.UUIDField(primary_key=True)
     nombre = models.CharField(max_length=50, blank=False, null=False)
     apellido = models.CharField(max_length=50, blank=False, null=False)
     dni_carnet = models.CharField(max_length=12, blank=False, null=False)

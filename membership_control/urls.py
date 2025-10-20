@@ -14,4 +14,7 @@ urlpatterns = [
 
     #principal
     path('core/', include('core.urls')),
+
+    #miembros
+    path('socios/', include('socios.urls')),
 ]
