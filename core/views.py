@@ -17,9 +17,3 @@ def home(request):
 
     #------------------------------
     return render(request, 'core/dashboard.html')
-
-
-@login_required
-def debug_perfil(request):
-    """Vista temporal para verificar el perfil del usuario"""
-    return render(request, 'debug_perfil.html')
