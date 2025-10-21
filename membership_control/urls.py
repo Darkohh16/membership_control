@@ -1,9 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
-from django.contrib.auth.decorators import login_required
-from accounts.views import *
+from accounts.views import login_view, logout_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -17,4 +14,7 @@ urlpatterns = [
 
     #miembros
     path('socios/', include('socios.urls')),
+
+    #pagos
+    path("pagos/", include("payments.urls")),
 ]
