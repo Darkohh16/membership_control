@@ -21,12 +21,12 @@ class Pago(models.Model):
         help_text="Número de recibo único generado automáticamente"
     )
     
-    # Relación con el usuario que realiza el pago
-    usuario = models.ForeignKey(
-        'accounts.Usuario',
+    # Relación con el socio que realiza el pago
+    socio = models.ForeignKey(
+        'socios.Socio',
         on_delete=models.CASCADE,
         related_name='pagos',
-        help_text="Usuario que realiza el pago"
+        help_text="Socio que realiza el pago"
     )
     
     # Fecha del pago
@@ -93,13 +93,13 @@ class Pago(models.Model):
         verbose_name_plural = 'Pagos'
         indexes = [
             models.Index(fields=['-fecha_pago']),
-            models.Index(fields=['usuario', '-fecha_pago']),
+            models.Index(fields=['socio', '-fecha_pago']),
             models.Index(fields=['metodo_pago']),
             models.Index(fields=['estado']),
         ]
     
     def __str__(self):
-        return f"Pago {self.numero_recibo} - {self.usuario.username} - S/ {self.monto}"
+        return f"Pago {self.numero_recibo} - {self.socio.nombre} {self.socio.apellido} - S/ {self.monto}"
     
     def save(self, *args, **kwargs):
         """

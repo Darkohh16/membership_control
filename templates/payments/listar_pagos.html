@@ -1,97 +1,18 @@
 {% extends 'base.html' %}
-{% block title %}Listado de Pagos - MembershipControl{% endblock %}
+{% block title %}Pagos Registrados - MembershipControl{% endblock %}
 
 {% block content %}
 <div class="min-h-screen w-full bg-gray-100 p-6">
     <div class="max-w-7xl mx-auto">
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Gestión de Pagos</h1>
+            <h1 class="text-3xl font-bold text-gray-800">📋 Pagos Registrados</h1>
             {% if request.user.perfil == 1 %}
             <a href="{% url 'payments:registrar_pago' %}" 
                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition shadow-md">
-                + Registrar Pago
+                💰 Registrar Pago
             </a>
             {% endif %}
-        </div>
-
-        <!-- Filtros y Búsqueda -->
-        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
-            <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <!-- Búsqueda -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Buscar</label>
-                    <input type="text" 
-                           name="q" 
-                           value="{{ request.GET.q }}"
-                           placeholder="Recibo, usuario, concepto..."
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-
-                <!-- Filtro por Estado -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
-                    <select name="estado" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Todos los estados</option>
-                        {% for nombre, valor in estados_pago.items %}
-                        <option value="{{ valor }}" {% if request.GET.estado == valor|stringformat:"s" %}selected{% endif %}>
-                            {{ nombre }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- Filtro por Método de Pago -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Método de Pago</label>
-                    <select name="metodo" 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">Todos los métodos</option>
-                        {% for nombre, valor in metodos_pago.items %}
-                        <option value="{{ valor }}" {% if request.GET.metodo == valor|stringformat:"s" %}selected{% endif %}>
-                            {{ nombre }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!-- Botones de acción -->
-                <div class="flex items-end gap-2">
-                    <button type="submit" 
-                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition">
-                        Filtrar
-                    </button>
-                    <a href="{% url 'payments:listar_pagos' %}" 
-                       class="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition text-center">
-                        Limpiar
-                    </a>
-                </div>
-            </form>
-        </div>
-
-        <!-- Tarjetas de estadísticas rápidas -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-lg shadow p-4">
-                <h3 class="text-gray-500 text-sm mb-1">Total de Pagos</h3>
-                <p class="text-2xl font-bold text-blue-600">{{ pagos.count }}</p>
-            </div>
-            <div class="bg-white rounded-lg shadow p-4">
-                <h3 class="text-gray-500 text-sm mb-1">Total Recaudado</h3>
-                <p class="text-2xl font-bold text-green-600">S/ {% widthratio pagos|length 1 1 as total %}{{ pagos|length|floatformat:2 }}</p>
-            </div>
-            <div class="bg-white rounded-lg shadow p-4">
-                <h3 class="text-gray-500 text-sm mb-1">Acciones Rápidas</h3>
-                <div class="flex gap-2 mt-2">
-                    <a href="{% url 'payments:mis_pagos' %}" 
-                       class="text-sm text-blue-600 hover:underline">Mis Pagos</a>
-                    {% if request.user.perfil == 1 %}
-                    <span class="text-gray-300">|</span>
-                    <a href="{% url 'payments:reporte_pagos' %}" 
-                       class="text-sm text-blue-600 hover:underline">Reportes</a>
-                    {% endif %}
-                </div>
-            </div>
         </div>
 
         <!-- Tabla de Pagos -->

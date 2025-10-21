@@ -10,7 +10,7 @@ class PagoAdmin(admin.ModelAdmin):
     """
     list_display = (
         'numero_recibo',
-        'usuario',
+        'socio',
         'monto',
         'metodo_pago',
         'estado',
@@ -26,8 +26,10 @@ class PagoAdmin(admin.ModelAdmin):
     
     search_fields = (
         'numero_recibo',
-        'usuario__username',
-        'usuario__email',
+        'socio__nombre',
+        'socio__apellido',
+        'socio__dni_carnet',
+        'socio__correo',
         'concepto',
     )
     
@@ -41,7 +43,7 @@ class PagoAdmin(admin.ModelAdmin):
         ('Información del Pago', {
             'fields': (
                 'numero_recibo',
-                'usuario',
+                'socio',
                 'monto',
                 'metodo_pago',
                 'estado',

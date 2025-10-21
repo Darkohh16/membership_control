@@ -1,43 +1,22 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Q
-from datetime import datetime
+from decimal import Decimal
 
 from payments.models import Pago
 from payments.constants import METODOS_PAGO, ESTADOS_PAGO
+from socios.models import Socio
 
-# Create your views here.
 
 @login_required
 def listar_pagos(request):
     """
-    Vista para listar todos los pagos con filtros opcionales.
+    Vista para listar todos los pagos registrados.
     """
-    pagos = Pago.objects.all()
-    
-    # Filtros
-    estado_filtro = request.GET.get('estado')
-    metodo_filtro = request.GET.get('metodo')
-    buscar = request.GET.get('q')
-    
-    if estado_filtro:
-        pagos = pagos.filter(estado=estado_filtro)
-    
-    if metodo_filtro:
-        pagos = pagos.filter(metodo_pago=metodo_filtro)
-    
-    if buscar:
-        pagos = pagos.filter(
-            Q(numero_recibo__icontains=buscar) |
-            Q(usuario__username__icontains=buscar) |
-            Q(concepto__icontains=buscar)
-        )
+    pagos = Pago.objects.all().order_by('-fecha_pago')
     
     context = {
         'pagos': pagos,
-        'metodos_pago': METODOS_PAGO,
-        'estados_pago': ESTADOS_PAGO,
     }
     
     return render(request, 'payments/listar_pagos.html', context)
@@ -62,19 +41,18 @@ def registrar_pago(request):
     """
     Vista para registrar un nuevo pago.
     Solo accesible para administradores.
+    US05: Como administrador, quiero registrar los pagos de membresías,
+    para mantener control financiero.
     """
-    from accounts.models import Usuario
-    from decimal import Decimal
-    
     # Verificar que el usuario sea administrador
     if request.user.perfil != 1:  # 1 = Administrador
-        messages.error(request, 'No tienes permisos para realizar esta acción.')
+        messages.error(request, 'No tienes permisos para registrar pagos.')
         return redirect('payments:listar_pagos')
     
     if request.method == 'POST':
         try:
             # Obtener datos del formulario
-            usuario_id = request.POST.get('usuario')
+            socio_id = request.POST.get('socio')
             monto = request.POST.get('monto')
             metodo_pago = request.POST.get('metodo_pago')
             estado = request.POST.get('estado')
@@ -82,17 +60,23 @@ def registrar_pago(request):
             notas = request.POST.get('notas', '')
             
             # Validaciones
-            if not usuario_id or not monto or not metodo_pago or not estado:
+            if not socio_id or not monto or not metodo_pago or not estado:
                 messages.error(request, 'Todos los campos obligatorios deben ser completados.')
                 return redirect('payments:registrar_pago')
             
-            # Obtener el usuario
-            usuario = Usuario.objects.get(username=usuario_id)
+            # Validar monto
+            monto_decimal = Decimal(monto)
+            if monto_decimal <= 0:
+                messages.error(request, 'El monto debe ser mayor a 0.')
+                return redirect('payments:registrar_pago')
+            
+            # Obtener el socio
+            socio = Socio.objects.get(id=socio_id)
             
             # Crear el pago
             pago = Pago.objects.create(
-                usuario=usuario,
-                monto=Decimal(monto),
+                socio=socio,
+                monto=monto_decimal,
                 metodo_pago=int(metodo_pago),
                 estado=int(estado),
                 concepto=concepto,
@@ -100,64 +84,26 @@ def registrar_pago(request):
                 registrado_por=request.user
             )
             
-            messages.success(request, f'Pago registrado exitosamente. Recibo: {pago.numero_recibo}')
+            messages.success(request, f'✅ Pago registrado exitosamente. Recibo: {pago.numero_recibo}')
             return redirect('payments:detalle_pago', pago_id=pago.id)
             
-        except Usuario.DoesNotExist:
-            messages.error(request, 'El usuario seleccionado no existe.')
+        except Socio.DoesNotExist:
+            messages.error(request, 'El socio seleccionado no existe.')
+            return redirect('payments:registrar_pago')
+        except ValueError:
+            messages.error(request, 'El monto ingresado no es válido.')
             return redirect('payments:registrar_pago')
         except Exception as e:
             messages.error(request, f'Error al registrar el pago: {str(e)}')
             return redirect('payments:registrar_pago')
     
-    # Obtener todos los usuarios para el formulario
-    usuarios = Usuario.objects.all().order_by('username')
+    # GET: Mostrar formulario
+    socios = Socio.objects.all().order_by('apellido', 'nombre')
     
     context = {
         'metodos_pago': METODOS_PAGO,
         'estados_pago': ESTADOS_PAGO,
-        'usuarios': usuarios,
+        'socios': socios,
     }
     
     return render(request, 'payments/registrar_pago.html', context)
-
-
-@login_required
-def mis_pagos(request):
-    """
-    Vista para que un usuario vea sus propios pagos.
-    """
-    pagos = Pago.objects.filter(usuario=request.user)
-    
-    context = {
-        'pagos': pagos,
-    }
-    
-    return render(request, 'payments/mis_pagos.html', context)
-
-
-@login_required
-def reporte_pagos(request):
-    """
-    Vista para generar reportes de pagos.
-    Solo accesible para administradores.
-    """
-    if request.user.perfil != 1:  # 1 = Administrador
-        messages.error(request, 'No tienes permisos para realizar esta acción.')
-        return redirect('listar_pagos')
-    
-    # Obtener estadísticas
-    mes_actual = datetime.now().month
-    anio_actual = datetime.now().year
-    
-    pagos_mes = Pago.objects.pagos_del_mes(mes_actual, anio_actual)
-    total_recaudado = Pago.objects.total_recaudado()
-    pagos_por_metodo = Pago.objects.pagos_por_metodo()
-    
-    context = {
-        'pagos_mes': pagos_mes,
-        'total_recaudado': total_recaudado,
-        'pagos_por_metodo': pagos_por_metodo,
-    }
-    
-    return render(request, 'payments/reporte_pagos.html', context)

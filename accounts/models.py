@@ -3,7 +3,7 @@ from django.db import models
 
 from accounts.helpers import avatar_path
 from accounts.managers import UserManager
-from accounts.constants import *
+from membership_control.choices import *
 
 # Create your models here.
 class Usuario(AbstractUser):
@@ -12,7 +12,7 @@ class Usuario(AbstractUser):
     first_name = models.CharField(max_length=50, blank=False, null=False)
     last_name = models.CharField(max_length=50, blank=False, null=False)
     email = models.EmailField(unique=True, null=False)
-    perfil = models.IntegerField(choices=perfiles, null=False)
+    perfil = models.IntegerField(choices=Perfiles, null=False)
     avatar = models.ImageField(
         upload_to=avatar_path,
         blank=True, null=True,
