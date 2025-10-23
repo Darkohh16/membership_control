@@ -1,3 +1,10 @@
-# Migraciones (excepto __init__.py)
+# Migraciones (ignorar todas excepto __init__.py)
 **/migrations/*
 !**/migrations/__init__.py
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
