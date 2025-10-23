@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
+from django.http import JsonResponse
 from membresias.models import TipoMembresia, Membresia
 from socios.models import Socio
 from datetime import timedelta
@@ -173,3 +174,49 @@ def desactivar_membresia(request, membresia_id):
     
     messages.success(request, 'Membresía desactivada exitosamente.')
     return redirect('listar_membresias_socio', socio_id=membresia.socio.id)
+
+
+@login_required
+def api_membresias_socio(request, socio_id):
+    """
+    API endpoint para obtener las membresías activas de un socio.
+    Retorna JSON con la información de las membresías.
+    """
+    try:
+        socio = get_object_or_404(Socio, pk=socio_id)
+        membresias = Membresia.objects.filter(socio=socio, activa=True).select_related('tipo_membresia')
+        
+        membresias_data = []
+        for membresia in membresias:
+            # Determinar el estado de la membresía
+            dias_restantes = membresia.dias_restantes()
+            if membresia.esta_vencida():
+                estado_text = 'Vencida'
+                estado_class = 'bg-red-100 text-red-800'
+            elif dias_restantes <= 7:
+                estado_text = f'{dias_restantes} días restantes'
+                estado_class = 'bg-yellow-100 text-yellow-800'
+            else:
+                estado_text = f'{dias_restantes} días restantes'
+                estado_class = 'bg-green-100 text-green-800'
+            
+            membresias_data.append({
+                'id': membresia.id,
+                'tipo_nombre': membresia.tipo_membresia.nombre,
+                'tipo_precio': float(membresia.tipo_membresia.precio),
+                'fecha_inicio': membresia.fecha_inicio.strftime('%d/%m/%Y'),
+                'fecha_fin': membresia.fecha_fin.strftime('%d/%m/%Y'),
+                'dias_restantes': dias_restantes,
+                'estado_text': estado_text,
+                'estado_class': estado_class,
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'membresias': membresias_data
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400)
