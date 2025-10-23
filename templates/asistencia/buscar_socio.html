@@ -36,7 +36,7 @@
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">
-                    <i class="bi bi-search"></i> Buscar por Nombre o Usuario
+                    <i class="bi bi-search"></i> Buscar por Nombre, Apellido o DNI
                 </h5>
             </div>
             <div class="card-body">
@@ -52,13 +52,13 @@
                                 name="busqueda" 
                                 id="id_busqueda" 
                                 class="form-control form-control-lg"
-                                placeholder="Escribe nombre, apellido o usuario..." 
+                                placeholder="Escribe nombre, apellido o DNI..." 
                                 autofocus 
                                 {% if busqueda %}value="{{ busqueda }}" {% endif %}
                             >
 
                             <small class="text-muted">
-                                Ejemplos: "Juan", "Pérez", "socio1"
+                                Ejemplos: "Juan", "Pérez", "12345678"
                             </small>
                         </div>
                         <div class="col-md-2">
@@ -93,20 +93,20 @@
                                 </div>
                                 <div>
                                     <h5 class="mb-1">
-                                        {{ socio.get_full_name|default:socio.username }}
+                                        {{ socio.nombre }} {{ socio.apellido }}
                                     </h5>
                                     <p class="mb-0 text-muted">
-                                        <i class="bi bi-at"></i> {{ socio.username }}
-                                        {% if socio.email %}
+                                        <i class="bi bi-credit-card"></i> DNI: {{ socio.dni_carnet }}
+                                        {% if socio.correo %}
                                         <span class="ms-2">
-                                            <i class="bi bi-envelope"></i> {{ socio.email }}
+                                            <i class="bi bi-envelope"></i> {{ socio.correo }}
                                         </span>
                                         {% endif %}
                                     </p>
                                 </div>
                             </div>
                             <div>
-                                <a href="{% url 'asistencia:registrar_asistencia_directo' socio.pk %}"
+                                <a href="{% url 'asistencia:registrar_asistencia_directo' socio.id %}"
                                     class="btn btn-success btn-lg">
                                     <i class="bi bi-check-circle"></i> Registrar Entrada
                                 </a>
@@ -139,7 +139,7 @@
                 <i class="bi bi-search text-muted" style="font-size: 5rem;"></i>
                 <h4 class="mt-3 text-muted">Busca un socio para registrar su entrada</h4>
                 <p class="text-muted">
-                    Escribe el nombre, apellido o usuario en el campo de búsqueda.
+                    Escribe el nombre, apellido o DNI en el campo de búsqueda.
                 </p>
             </div>
         </div>
@@ -153,8 +153,8 @@
             <a href="{% url 'asistencia:historial' %}" class="btn btn-outline-info">
                 <i class="bi bi-clock-history"></i> Ver Historial
             </a>
-            <a href="/admin/" class="btn btn-outline-secondary">
-                <i class="bi bi-gear"></i> Panel Admin
+            <a href="{% url 'socios_general' %}" class="btn btn-outline-primary">
+                <i class="bi bi-people"></i> Gestión de Socios
             </a>
         </div>
     </div>

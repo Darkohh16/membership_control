@@ -58,10 +58,10 @@
                                                 </div>
                                                 <div>
                                                     <strong class="d-block">
-                                                        {{ asistencia.socio.get_full_name|default:asistencia.socio.username }}
+                                                        {{ asistencia.socio.nombre }} {{ asistencia.socio.apellido }}
                                                     </strong>
                                                     <small class="text-muted">
-                                                        <i class="bi bi-at"></i> {{ asistencia.socio.username }}
+                                                        <i class="bi bi-credit-card"></i> DNI: {{ asistencia.socio.dni_carnet }}
                                                     </small>
                                                 </div>
                                             </div>
@@ -135,8 +135,11 @@
             <a href="{% url 'asistencia:registrar_asistencia_form' %}" class="btn btn-outline-primary">
                 <i class="bi bi-file-earmark-plus"></i> Nuevo Registro
             </a>
-            <a href="/admin/" class="btn btn-outline-secondary">
-                <i class="bi bi-gear"></i> Panel Admin
+            <a href="{% url 'asistencia:buscar_socio' %}" class="btn btn-outline-success">
+                <i class="bi bi-search"></i> Buscar Socio
+            </a>
+            <a href="{% url 'socios_general' %}" class="btn btn-outline-info">
+                <i class="bi bi-people"></i> Gestión de Socios
             </a>
         </div>
     </div>
