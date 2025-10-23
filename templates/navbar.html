@@ -1,0 +1,19 @@
+{% block content %}
+<!-- Navbar -->
+<header class="bg-white shadow-md py-3">
+    <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
+      <h1 class="text-xl font-bold text-blue-600">Membership Control</h1>
+
+      <nav class="flex items-center space-x-4">
+        <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600 transition">Inicio</a>
+        <a href="{% url 'socios_general' %}" class="text-gray-700 hover:text-blue-600 transition">Miembros</a>
+        <a href="#" class="text-gray-700 hover:text-blue-600 transition">Gaaaa</a>
+        <a href="#" class="text-gray-700 hover:text-blue-600 transition">NoSeQueMas</a>
+      </nav>
+
+      <a class="bg-blue-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-700 transition" href="{% url 'logout' %}">
+        Cerrar sesión
+      </a>
+    </div>
+</header>
+{% endblock %}

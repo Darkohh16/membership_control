@@ -1,0 +1,29 @@
+/accounts/migrations/
+/core/migrations/
+/socios/migrations/
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Django
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media/
+staticfiles/
+
+# VSCode / PyCharm
+.vscode/
+.idea/
+
+# Environments
+.env
+venv/
+env/
+env_*/

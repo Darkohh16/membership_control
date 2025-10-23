@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% block title %}Registrar Pago - MembershipControl{% endblock %}
+
+{% block content %}
+<div class="min-h-screen w-full bg-gray-50 py-6 px-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Registrar Pago de Membresía</h1>
+            <p class="text-gray-600">Complete la información del pago</p>
+        </div>
+
+
+        <!-- Formulario Principal -->
+        <div class="bg-white rounded-xl shadow-lg p-8">
+
+
+            <form method="POST" id="pagoForm" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Selección de Socio -->
+                <div>
+                    <label for="socio" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Socio <span class="text-red-500">*</span>
+                    </label>
+                    <select name="socio" id="socio" required
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
+                        <option value="">Seleccione un socio...</option>
+                        {% for socio in socios %}
+                        <option value="{{ socio.id }}" data-dni="{{ socio.dni_carnet }}" data-correo="{{ socio.correo }}">
+                            {{ socio.apellido }}, {{ socio.nombre }} - DNI: {{ socio.dni_carnet }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <!-- Info del socio seleccionado -->
+                    <div id="socio-info" class="mt-3 p-3 bg-gray-50 rounded-lg hidden">
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="text-gray-600">DNI:</span>
+                                <span id="socio-dni" class="ml-2 font-medium text-gray-800"></span>
+                            </div>
+                            <div>
+                                <span class="text-gray-600">Correo:</span>
+                                <span id="socio-correo" class="ml-2 font-medium text-gray-800"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid: Monto y Método de Pago -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Monto -->
+                    <div>
+                        <label for="monto" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Monto (S/) <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">S/</span>
+                            <input type="number" name="monto" id="monto" step="0.01" min="0.01" required
+                                   placeholder="0.00"
+                                   class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition text-lg font-semibold">
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Por ahora, ingrese el monto manualmente</p>
+                    </div>
+
+                    <!-- Método de Pago -->
+                    <div>
+                        <label for="metodo_pago" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Método de Pago <span class="text-red-500">*</span>
+                        </label>
+                        <select name="metodo_pago" id="metodo_pago" required
+                                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
+                            <option value="">Seleccione un método...</option>
+                            {% for nombre, valor in metodos_pago.items %}
+                            <option value="{{ valor }}">{{ nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Estado del Pago -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-3">
+                        Estado del Pago <span class="text-red-500">*</span>
+                    </label>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {% for nombre, valor in estados_pago.items %}
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="estado" value="{{ valor }}" 
+                                   {% if valor == 2 %}checked{% endif %}
+                                   class="peer sr-only">
+                            <div class="px-4 py-3 border-2 border-gray-300 rounded-lg text-center transition-all
+                                        peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700
+                                        hover:border-blue-300 hover:bg-gray-50">
+                                <span class="text-sm font-medium">{{ nombre }}</span>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Concepto -->
+                <div>
+                    <label for="concepto" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Concepto del Pago
+                    </label>
+                    <input type="text" name="concepto" id="concepto" maxlength="200"
+                           placeholder="Ej: Pago de membresía mensual"
+                           class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
+                </div>
+
+                <!-- Notas (Opcional) -->
+                <div>
+                    <label for="notas" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Notas Adicionales <span class="text-gray-400 text-xs">(Opcional)</span>
+                    </label>
+                    <textarea name="notas" id="notas" rows="3"
+                              placeholder="Información adicional sobre el pago..."
+                              class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition resize-none"></textarea>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="flex gap-4 pt-4 border-t">
+                    <button type="submit"
+                            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all shadow-md hover:shadow-lg flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>Registrar Pago</span>
+                    </button>
+                    <a href="{% url 'payments:listar_pagos' %}"
+                       class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-all text-center flex items-center justify-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                        <span>Cancelar</span>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const socioSelect = document.getElementById('socio');
+    const socioInfo = document.getElementById('socio-info');
+    const socioCorreo = document.getElementById('socio-correo');
+    const socioDni = document.getElementById('socio-dni');
+    const form = document.getElementById('pagoForm');
+    
+    // Mostrar info del socio seleccionado
+    socioSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        if (selectedOption.value) {
+            const dni = selectedOption.getAttribute('data-dni');
+            const correo = selectedOption.getAttribute('data-correo');
+            
+            socioDni.textContent = dni;
+            socioCorreo.textContent = correo;
+            socioInfo.classList.remove('hidden');
+            
+            // Auto-focus en monto
+            document.getElementById('monto').focus();
+        } else {
+            socioInfo.classList.add('hidden');
+        }
+    });
+    
+    // Validación del formulario
+    form.addEventListener('submit', function(e) {
+        const monto = parseFloat(document.getElementById('monto').value);
+        const socio = document.getElementById('socio').value;
+        const metodoPago = document.getElementById('metodo_pago').value;
+        
+        if (!socio) {
+            e.preventDefault();
+            alert('⚠️ Debe seleccionar un socio');
+            return false;
+        }
+        
+        if (!metodoPago) {
+            e.preventDefault();
+            alert('⚠️ Debe seleccionar un método de pago');
+            return false;
+        }
+        
+        if (monto <= 0 || isNaN(monto)) {
+            e.preventDefault();
+            alert('⚠️ El monto debe ser mayor a 0');
+            return false;
+        }
+        
+        // Confirmación
+        const nombreSocio = socioSelect.options[socioSelect.selectedIndex].text;
+        if (!confirm(`¿Confirmar registro de pago de S/ ${monto.toFixed(2)} para ${nombreSocio}?`)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
