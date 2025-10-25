@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Membresías de {{ socio.nombre }} {{ socio.apellido }}{% endblock %}
+
+{% block content %}
+<div class="flex-grow bg-gray-100 p-6">
+    <div class="max-w-7xl mx-auto bg-white shadow-xl rounded-2xl p-6">
+        <!-- Encabezado -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-700">Membresías del Socio</h1>
+                <p class="mt-1 text-gray-600">{{ socio.nombre }} {{ socio.apellido }} - DNI: {{ socio.dni_carnet }}</p>
+            </div>
+            {% if user.perfil == 1 %}
+            <a href="{% url 'asignar_membresia' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition flex items-center gap-2">
+                + Asignar Membresía
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="mb-6">
+            {% for message in messages %}
+            <div class="{% if message.tags == 'success' %}bg-green-50 border-green-200 text-green-800{% elif message.tags == 'error' %}bg-red-50 border-red-200 text-red-800{% else %}bg-blue-50 border-blue-200 text-blue-800{% endif %} border rounded-lg p-4 mb-3">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Tabla -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+                <thead class="bg-blue-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Tipo</th>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Fecha Inicio</th>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Fecha Fin</th>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Días Restantes</th>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Estado</th>
+                        {% if user.perfil == 1 %}
+                        <th class="px-4 py-2 text-center text-gray-700 font-semibold">Acciones</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for membresia in membresias %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-4 py-2 text-gray-700 font-medium">{{ membresia.tipo_membresia.nombre }}</td>
+                        <td class="px-4 py-2 text-gray-700">{{ membresia.fecha_inicio|date:"d/m/Y" }}</td>
+                        <td class="px-4 py-2 text-gray-700">{{ membresia.fecha_fin|date:"d/m/Y" }}</td>
+                        <td class="px-4 py-2 text-gray-700">
+                            {% if membresia.activa and not membresia.esta_vencida %}
+                                {{ membresia.dias_restantes }} días
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2">
+                            {% if membresia.activa %}
+                                {% if membresia.esta_vencida %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Vencida</span>
+                                {% elif membresia.dias_restantes <= 7 %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Por vencer</span>
+                                {% else %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Activa</span>
+                                {% endif %}
+                            {% else %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Inactiva</span>
+                            {% endif %}
+                        </td>
+                        {% if user.perfil == 1 %}
+                        <td class="px-4 py-2 text-center">
+                            {% if membresia.activa %}
+                            <a href="{% url 'desactivar_membresia' membresia.id %}" 
+                               onclick="return confirm('¿Está seguro de desactivar esta membresía?')"
+                               class="text-red-600 hover:text-red-800 font-medium">
+                                Desactivar
+                            </a>
+                            {% else %}
+                            <span class="text-gray-400">-</span>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{% if user.perfil == 1 %}6{% else %}5{% endif %}" class="text-center py-6 text-gray-500">
+                            No hay membresías registradas para este socio
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

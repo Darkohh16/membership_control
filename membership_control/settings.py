@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'payments',
     'core',
     'socios',
+    'membresias',
 ]
 
 MIDDLEWARE = [

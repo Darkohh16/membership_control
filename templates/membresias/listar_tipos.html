@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tipos de Membresía{% endblock %}
+
+{% block content %}
+<div class="flex-grow bg-gray-100 p-6">
+    <div class="max-w-7xl mx-auto bg-white shadow-xl rounded-2xl p-6">
+        <!-- Encabezado -->
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold text-gray-700">Tipos de Membresía</h1>
+            {% if user.perfil == 1 %}
+            <a href="{% url 'crear_tipo' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition flex items-center gap-2">
+                + Nuevo Tipo
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Tabla -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+                <thead class="bg-blue-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Nombre</th>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Descripción</th>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Duración</th>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Precio</th>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Estado</th>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Fecha Creación</th>
+                        {% if user.perfil == 1 %}
+                        <th class="px-4 py-2 text-center text-gray-700 font-semibold">Acciones</th>
+                        {% endif %}
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for tipo in tipos %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-4 py-2 text-gray-700 font-medium">{{ tipo.nombre }}</td>
+                        <td class="px-4 py-2 text-gray-700">
+                            {% if tipo.descripcion %}
+                                {{ tipo.descripcion|truncatewords:10 }}
+                            {% else %}
+                                <span class="text-gray-400 italic">Sin descripción</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2 text-gray-700">{{ tipo.duracion_dias }} días</td>
+                        <td class="px-4 py-2 text-gray-700 font-semibold">S/ {{ tipo.precio }}</td>
+                        <td class="px-4 py-2">
+                            {% if tipo.activo %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                Activo
+                            </span>
+                            {% else %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                Inactivo
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2 text-gray-700">{{ tipo.fecha_creacion|date:"d/m/Y" }}</td>
+                        {% if user.perfil == 1 %}
+                        <td class="px-4 py-2 text-center">
+                            <a href="{% url 'editar_tipo' tipo.id %}" class="text-blue-600 hover:text-blue-800 font-medium">
+                                Editar
+                            </a>
+                        </td>
+                        {% endif %}
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{% if user.perfil == 1 %}7{% else %}6{% endif %}" class="text-center py-6 text-gray-500">
+                            No hay tipos de membresía registrados
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

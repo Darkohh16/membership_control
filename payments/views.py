@@ -1,11 +1,14 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.db.models import Sum, Count, Q
 from decimal import Decimal
+from datetime import datetime, timedelta
 
 from payments.models import Pago
 from payments.constants import METODOS_PAGO, ESTADOS_PAGO
 from socios.models import Socio
+from membresias.models import Membresia
 
 
 @login_required
@@ -13,7 +16,7 @@ def listar_pagos(request):
     """
     Vista para listar todos los pagos registrados.
     """
-    pagos = Pago.objects.all().order_by('-fecha_pago')
+    pagos = Pago.objects.all().select_related('socio', 'membresia__tipo_membresia', 'registrado_por').order_by('-fecha_pago')
     
     context = {
         'pagos': pagos,
@@ -27,7 +30,10 @@ def detalle_pago(request, pago_id):
     """
     Vista para ver el detalle de un pago específico.
     """
-    pago = get_object_or_404(Pago, pk=pago_id)
+    pago = get_object_or_404(
+        Pago.objects.select_related('socio', 'membresia__tipo_membresia', 'registrado_por'),
+        pk=pago_id
+    )
     
     context = {
         'pago': pago,
@@ -58,6 +64,7 @@ def registrar_pago(request):
             estado = request.POST.get('estado')
             concepto = request.POST.get('concepto', '')
             notas = request.POST.get('notas', '')
+            membresia_id = request.POST.get('membresia', '')
             
             # Validaciones
             if not socio_id or not monto or not metodo_pago or not estado:
@@ -73,6 +80,19 @@ def registrar_pago(request):
             # Obtener el socio
             socio = Socio.objects.get(id=socio_id)
             
+            # Obtener membresía si se seleccionó
+            membresia = None
+            if membresia_id:
+                try:
+                    membresia = Membresia.objects.get(id=membresia_id)
+                except Membresia.DoesNotExist:
+                    messages.error(request, 'La membresía seleccionada no existe.')
+                    return redirect('payments:registrar_pago')
+            else:
+                # Validar que se haya seleccionado una membresía (obligatorio)
+                messages.error(request, 'Debe seleccionar una membresía. Los pagos deben estar asociados a una membresía.')
+                return redirect('payments:registrar_pago')
+            
             # Crear el pago
             pago = Pago.objects.create(
                 socio=socio,
@@ -81,10 +101,11 @@ def registrar_pago(request):
                 estado=int(estado),
                 concepto=concepto,
                 notas=notas,
-                registrado_por=request.user
+                registrado_por=request.user,
+                membresia=membresia  # Asociar membresía si existe
             )
             
-            messages.success(request, f'✅ Pago registrado exitosamente. Recibo: {pago.numero_recibo}')
+            messages.success(request, f'Pago registrado exitosamente. Recibo: {pago.numero_recibo}')
             return redirect('payments:detalle_pago', pago_id=pago.id)
             
         except Socio.DoesNotExist:

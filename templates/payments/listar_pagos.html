@@ -2,105 +2,86 @@
 {% block title %}Pagos Registrados - MembershipControl{% endblock %}
 
 {% block content %}
-<div class="min-h-screen w-full bg-gray-100 p-6">
-    <div class="max-w-7xl mx-auto">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">📋 Pagos Registrados</h1>
+<div class="flex-grow bg-gray-100 p-6">
+    <div class="max-w-7xl mx-auto bg-white shadow-xl rounded-2xl p-6">
+        <!-- Encabezado -->
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-bold text-gray-700">Gestión de Pagos</h1>
             {% if request.user.perfil == 1 %}
             <a href="{% url 'payments:registrar_pago' %}" 
-               class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition shadow-md">
-                💰 Registrar Pago
+               class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition flex items-center gap-2">
+                + Registrar Pago
             </a>
             {% endif %}
         </div>
 
-        <!-- Tabla de Pagos -->
-        <div class="bg-white rounded-lg shadow-md overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Recibo
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Usuario
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Fecha
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Monto
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Método
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Estado
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Acciones
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        {% for pago in pagos %}
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                {{ pago.numero_recibo }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ pago.usuario.username }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ pago.fecha_pago|date:"d/m/Y H:i" }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                                S/ {{ pago.monto }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ pago.get_metodo_pago_display_custom }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                {% if pago.estado == 2 %}
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                    {{ pago.get_estado_display_custom }}
+        <!-- Tabla -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+                <thead class="bg-blue-50">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Recibo</th>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Socio</th>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Membresía</th>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Fecha</th>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Monto</th>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Método</th>
+                        <th class="px-4 py-2 text-left text-gray-700 font-semibold">Estado</th>
+                        <th class="px-4 py-2 text-center text-gray-700 font-semibold">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for pago in pagos %}
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-4 py-2 text-gray-700">{{ pago.numero_recibo }}</td>
+                        <td class="px-4 py-2 text-gray-700">{{ pago.socio.nombre }} {{ pago.socio.apellido }}</td>
+                        <td class="px-4 py-2 text-gray-700">
+                            {% if pago.membresia %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">
+                                    {{ pago.membresia.tipo_membresia.nombre }}
                                 </span>
-                                {% elif pago.estado == 1 %}
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                    {{ pago.get_estado_display_custom }}
+                            {% else %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">
+                                    Sin asignar
                                 </span>
-                                {% elif pago.estado == 3 %}
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                                    {{ pago.get_estado_display_custom }}
-                                </span>
-                                {% else %}
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
-                                    {{ pago.get_estado_display_custom }}
-                                </span>
-                                {% endif %}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <a href="{% url 'payments:detalle_pago' pago.id %}" 
-                                   class="text-blue-600 hover:text-blue-900 font-medium">
-                                    Ver Detalle
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-                                <svg class="mx-auto h-12 w-12 text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                </svg>
-                                No se encontraron pagos
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2 text-gray-700">{{ pago.fecha_pago|date:"d/m/Y" }}</td>
+                        <td class="px-4 py-2 text-gray-700 font-semibold">S/ {{ pago.monto }}</td>
+                        <td class="px-4 py-2 text-gray-700">{{ pago.get_metodo_pago_display_custom }}</td>
+                        <td class="px-4 py-2">
+                            {% if pago.estado == 2 %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                {{ pago.get_estado_display_custom }}
+                            </span>
+                            {% elif pago.estado == 1 %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                {{ pago.get_estado_display_custom }}
+                            </span>
+                            {% elif pago.estado == 3 %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                {{ pago.get_estado_display_custom }}
+                            </span>
+                            {% else %}
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                {{ pago.get_estado_display_custom }}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-2 text-center">
+                            <a href="{% url 'payments:detalle_pago' pago.id %}" 
+                               class="text-blue-600 hover:text-blue-800 font-medium">
+                                Detalles
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-6 text-gray-500">No hay pagos registrados</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
