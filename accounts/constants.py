@@ -1,5 +1,5 @@
-perfiles = {
-    'Administrador': 1,
-    'Usuario': 2,
-    'Recepcionista': 3,
-}
+perfiles = (
+    (1, 'Administrador'),
+    (2, 'Usuario'),
+    (3, 'Recepcionista'),
+)

@@ -5,19 +5,22 @@ from accounts.views import login_view, logout_view
 urlpatterns = [
     path('admin/', admin.site.urls),
 
-    #auth
+    # auth
     path('', login_view, name='login'),
     path('logout/', logout_view, name='logout'),
 
-    #principal
+    # principal
     path('core/', include('core.urls')),
 
-    #miembros
+    # miembros
     path('socios/', include('socios.urls')),
 
-    #pagos
+    # pagos
     path("pagos/", include("payments.urls")),
 
+    # asistencia
+    path('asistencia/', include('asistencia.urls')),
+  
     #membresías
     path("membresias/", include("membresias.urls")),
 ]
