@@ -29,6 +29,16 @@ class Pago(models.Model):
         help_text="Socio que realiza el pago"
     )
     
+    # Relación con la membresía (requerido para nuevos pagos)
+    membresia = models.ForeignKey(
+        'membresias.Membresia',
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='pagos',
+        help_text="Membresía asociada al pago"
+    )
+    
     # Fecha del pago
     fecha_pago = models.DateTimeField(
         auto_now_add=True,
@@ -127,3 +137,26 @@ class Pago(models.Model):
             if valor == self.estado:
                 return nombre
         return "Desconocido"
+    
+    def es_pago_membresia(self):
+        """
+        Verifica si el pago está asociado a una membresía.
+        """
+        return self.membresia is not None
+    
+    def get_socio_nombre_completo(self):
+        """
+        Obtiene el nombre completo del socio.
+        """
+        return f"{self.socio.nombre} {self.socio.apellido}"
+    
+    def get_estado_badge_class(self):
+        """
+        Retorna la clase CSS para el badge según el estado.
+        """
+        estados_class = {
+            1: 'bg-yellow-100 text-yellow-800',  # Pendiente
+            2: 'bg-green-100 text-green-800',    # Completado
+            3: 'bg-red-100 text-red-800',        # Cancelado
+        }
+        return estados_class.get(self.estado, 'bg-gray-100 text-gray-800')

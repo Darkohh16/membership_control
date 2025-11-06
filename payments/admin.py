@@ -11,6 +11,7 @@ class PagoAdmin(admin.ModelAdmin):
     list_display = (
         'numero_recibo',
         'socio',
+        'get_membresia_display',
         'monto',
         'metodo_pago',
         'estado',
@@ -44,6 +45,7 @@ class PagoAdmin(admin.ModelAdmin):
             'fields': (
                 'numero_recibo',
                 'socio',
+                'membresia',
                 'monto',
                 'metodo_pago',
                 'estado',
@@ -68,6 +70,15 @@ class PagoAdmin(admin.ModelAdmin):
     
     date_hierarchy = 'fecha_pago'
     ordering = ('-fecha_pago',)
+    
+    def get_membresia_display(self, obj):
+        """
+        Muestra la membresía asociada al pago.
+        """
+        if obj.membresia:
+            return f"{obj.membresia.tipo_membresia.nombre}"
+        return "-"
+    get_membresia_display.short_description = 'Membresía'
     
     def save_model(self, request, obj, form, change):
         """
