@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Aviso de Vencimiento de Membresía</title>
+<style>
+    /* Reset básico */
+    body, html {
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    .email-container {
+        max-width: 650px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border-top: 8px solid #28a745;
+    }
+    .banner {
+        width: 100%;
+        height: 150px;
+        background-image: url('https://img.pikbest.com/origin/10/04/67/06tpIkbEsTUP5.jpg!w700wp');
+        background-size: cover;
+        background-position: center;
+        position: relative;
+    }
+    .banner h1 {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        color: white;
+        font-size: 28px;
+        margin: 0;
+        text-shadow: 1px 1px 5px rgba(0,0,0,0.7);
+    }
+    .content {
+        padding: 30px 40px;
+        color: #333333;
+    }
+    .content h2 {
+        color: #28a745;
+        margin-top: 0;
+    }
+    .highlight {
+        font-weight: bold;
+        color: #e74c3c;
+    }
+    .btn-renovar {
+        display: inline-block;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        margin-top: 20px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+    .btn-renovar:hover {
+        background-color: #0056b3;
+    }
+    .footer {
+        background-color: #f8f9fa;
+        padding: 20px;
+        text-align: center;
+        font-size: 0.8em;
+        color: #6c757d;
+    }
+    .membresia-info {
+        background-color: #f1f1f1;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 15px 0;
+        line-height: 1.4;
+    }
+    .observaciones {
+        font-style: italic;
+        color: #555555;
+        margin-top: 10px;
+    }
+</style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="banner">
+            <h1>Aviso de Vencimiento</h1>
+        </div>
+        <div class="content">
+            <h2>Hola {{ socio.nombre }} {{ socio.apellido }},</h2>
+            <p>
+                Tu membresía
+                <strong>{{ membresia.tipo_membresia.nombre }}</strong>
+                está por vencer el
+                <span class="highlight">
+                    {{ membresia.fecha_fin|date:"d" }}
+                    de
+                    {{ membresia.fecha_fin|date:"F" }}</span>.</p>
+
+            <div class="membresia-info">
+                <p>Días restantes: <strong>{{ membresia.dias_restantes }}</strong></p>
+                <p>Fecha de inicio: <strong>{{ membresia.fecha_inicio|date:"d/m/Y" }}</strong></p>
+                <p>Fecha de fin: <strong>{{ membresia.fecha_fin|date:"d/m/Y" }}</strong></p>
+            </div>
+
+            {% if membresia.observaciones %}
+            <p class="observaciones">Observaciones: {{ membresia.observaciones }}</p>
+            {% endif %}
+
+            <p>Renueva tu membresía para seguir disfrutando de todos nuestros servicios y mantener tu progreso.</p>
+            <a href="#" class="btn-renovar">Renovar Ahora</a>
+        </div>
+        <div class="footer">
+            &copy; {% now "Y" %} Sistema MembershipControl. Todos los derechos reservados.<br>
+            Este es un correo electrónico automático, por favor no respondas a este mensaje.
+        </div>
+    </div>
+</body>
+</html>

@@ -15,6 +15,8 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 # Application definition
+USE_TZ = False
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -29,6 +31,13 @@ INSTALLED_APPS = [
     'core',
     'socios',
     'membresias',
+    'django.contrib.humanize',
+    'django_crontab'
+]
+
+#programar crontab
+CRONJOBS = [
+    ('36 16 * * *', 'socios.views.vencimiento_programado'),
 ]
 
 MIDDLEWARE = [
@@ -96,4 +105,22 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_SECURE = False  # Cambiar a True en producción con HTTPS
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
+# Usar cookies seguros (solo transmitir por HTTPS)
+SESSION_COOKIE_SECURE = False # Cambiar a True en producción con HTTPS
+
+# Motor de almacenamiento de sesiones
+SESSION_ENGINE = 'django.contrib.sessions.backends.db' # Almacenar en la base de datos
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#Email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'eloskarpruebas@gmail.com'
+EMAIL_HOST_PASSWORD = 'ixuprmuwdbihvhop'
+DEFAULT_FROM_EMAIL = 'eloskarpruebas@gmail.com'

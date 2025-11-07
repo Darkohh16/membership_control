@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Socios por vencer{% endblock %}
+
+{% block content %}
+<div class="flex-grow bg-gray-100 p-6">
+  <div class="max-w-6xl mx-auto bg-white shadow-xl rounded-2xl p-6">
+    
+    <!-- Encabezado -->
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-2xl font-bold text-gray-700 flex items-center gap-2">
+        Socios con membresía por vencer
+      </h1>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'generar_aviso' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition flex items-center gap-2">
+                Generar Aviso
+            </a>
+            <a href="{% url 'socios_general' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition flex items-center gap-2">
+                <- Volver
+            </a>
+        </div>
+    </div>
+
+    <!-- Información general -->
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-lg mb-6">
+      <p class="text-yellow-800">
+        Aquí puedes ver los socios cuya membresía está próxima a vencer en los próximos <strong>15 días</strong>.
+      </p>
+    </div>
+
+    <!-- Tabla -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+        <thead class="bg-yellow-100">
+          <tr>
+            <th class="px-4 py-2 text-left text-gray-700 font-semibold">Socio</th>
+            <th class="px-4 py-2 text-left text-gray-700 font-semibold">NroDocumento</th>
+            <th class="px-4 py-2 text-left text-gray-700 font-semibold">Celular</th>
+            <th class="px-4 py-2 text-left text-gray-700 font-semibold">Tipo de Membresia</th>
+            <th class="px-4 py-2 text-center text-gray-700 font-semibold">Fecha de vencimiento</th>
+            <th class="px-4 py-2 text-center text-gray-700 font-semibold">Días restantes</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          {% for membresia in membresias %}
+          <tr class="hover:bg-yellow-50 transition">
+            <td class="px-4 py-2 text-gray-700">{{ membresia.socio.nombre }} {{ membresia.socio.apellido }}</td>
+            <td class="px-4 py-2 text-gray-700">{{ membresia.socio.dni_carnet }}</td>
+            <td class="px-4 py-2 text-gray-700">{{ membresia.socio.celular }}</td>
+            <td class="px-4 py-2 text-gray-700">{{ membresia.tipo_membresia.nombre }}</td>
+            <td class="px-4 py-2 text-center text-gray-700">{{ membresia.fecha_fin|date:"d/m/Y" }}</td>
+            <td class="px-4 py-2 text-center text-gray-700">
+              <span class="px-2 py-1 rounded-full text-sm font-medium
+                {% if membresia.dias_restantes <= 3 %}
+                  text-red-800 bg-red-200
+                {% elif membresia.dias_restantes <= 7 %}
+                  text-orange-800 bg-orange-200
+                {% else %}
+                  text-yellow-800 bg-yellow-200
+                {% endif %}
+                ">
+                  {{ membresia.dias_restantes }} dias
+              </span>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="text-center py-6 text-gray-500">No hay socios con membresía próxima a vencer</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
