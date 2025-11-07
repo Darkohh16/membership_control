@@ -30,4 +30,17 @@ staticfiles/
 venv/
 env/
 env_*/
+HEAD
 
+=======
+# Migraciones (ignorar todas excepto __init__.py)
+**/migrations/*
+!**/migrations/__init__.py
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+>>>>>>> d0950ea47fd09464193c1d44cad6d942ac89a21f

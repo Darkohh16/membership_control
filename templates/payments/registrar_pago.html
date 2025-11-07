@@ -32,18 +32,15 @@
                         </option>
                         {% endfor %}
                     </select>
-                    <!-- Info del socio seleccionado -->
-                    <div id="socio-info" class="mt-3 p-3 bg-gray-50 rounded-lg hidden">
-                        <div class="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                                <span class="text-gray-600">DNI:</span>
-                                <span id="socio-dni" class="ml-2 font-medium text-gray-800"></span>
-                            </div>
-                            <div>
-                                <span class="text-gray-600">Correo:</span>
-                                <span id="socio-correo" class="ml-2 font-medium text-gray-800"></span>
-                            </div>
-                        </div>
+                </div>
+
+                <!-- Membresía Activa del Socio -->
+                <div id="membresia-section" class="hidden">
+                    <label for="membresia" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Membresía Activa
+                    </label>
+                    <div id="membresias-container" class="space-y-2">
+                        <!-- Se llenará dinámicamente con JavaScript -->
                     </div>
                 </div>
 
@@ -60,7 +57,9 @@
                                    placeholder="0.00"
                                    class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition text-lg font-semibold">
                         </div>
-                        <p class="mt-1 text-xs text-gray-500">Por ahora, ingrese el monto manualmente</p>
+                        <p id="monto-sugerido" class="mt-1 text-xs text-gray-500 hidden">
+                            Monto sugerido según membresía: <span class="font-semibold text-blue-600"></span>
+                        </p>
                     </div>
 
                     <!-- Método de Pago -->
@@ -107,6 +106,9 @@
                     <input type="text" name="concepto" id="concepto" maxlength="200"
                            placeholder="Ej: Pago de membresía mensual"
                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
+                    <p id="concepto-ayuda" class="text-xs text-gray-500 mt-1 hidden">
+                        💡 Sugerencia: Describe el motivo del pago (membresía, multa, evento, etc.)
+                    </p>
                 </div>
 
                 <!-- Notas (Opcional) -->
@@ -146,33 +148,157 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const socioSelect = document.getElementById('socio');
-    const socioInfo = document.getElementById('socio-info');
-    const socioCorreo = document.getElementById('socio-correo');
-    const socioDni = document.getElementById('socio-dni');
+    const membresiaSection = document.getElementById('membresia-section');
+    const membresiasContainer = document.getElementById('membresias-container');
+    const montoInput = document.getElementById('monto');
+    const montoSugerido = document.getElementById('monto-sugerido');
+    const conceptoInput = document.getElementById('concepto');
+    const conceptoAyuda = document.getElementById('concepto-ayuda');
     const form = document.getElementById('pagoForm');
     
-    // Mostrar info del socio seleccionado
-    socioSelect.addEventListener('change', function() {
-        const selectedOption = this.options[this.selectedIndex];
-        if (selectedOption.value) {
-            const dni = selectedOption.getAttribute('data-dni');
-            const correo = selectedOption.getAttribute('data-correo');
+    // Cargar membresías cuando se selecciona un socio
+    socioSelect.addEventListener('change', async function() {
+        const socioId = this.value;
+        
+        if (!socioId) {
+            membresiaSection.classList.add('hidden');
+            montoSugerido.classList.add('hidden');
+            montoInput.value = '';
+            return;
+        }
+        
+        try {
+            // Hacer petición para obtener las membresías del socio
+            const response = await fetch(`/membresias/api/socio/${socioId}/`);
             
-            socioDni.textContent = dni;
-            socioCorreo.textContent = correo;
-            socioInfo.classList.remove('hidden');
+            if (!response.ok) {
+                // Si no hay endpoint API, mostrar sin membresías
+                membresiaSection.classList.add('hidden');
+                return;
+            }
             
-            // Auto-focus en monto
-            document.getElementById('monto').focus();
-        } else {
-            socioInfo.classList.add('hidden');
+            const data = await response.json();
+            const membresias = data.membresias || [];
+            
+            if (membresias.length > 0) {
+                mostrarMembresias(membresias);
+                membresiaSection.classList.remove('hidden');
+                
+                // Habilitar botón de submit
+                const submitButton = form.querySelector('button[type="submit"]');
+                submitButton.disabled = false;
+                submitButton.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                submitButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                submitButton.innerHTML = `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                    <span>Registrar Pago</span>
+                `;
+            } else {
+                membresiasContainer.innerHTML = `
+                    <div class="bg-red-50 border-2 border-red-300 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <svg class="w-6 h-6 text-red-600 mr-3 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-red-800 mb-2">⚠️ No se puede registrar el pago</h4>
+                                <p class="text-sm text-red-700 mb-3">
+                                    Este socio no tiene membresías activas. Para registrar un pago de membresía, 
+                                    primero debes asignar una membresía al socio.
+                                </p>
+                                <div class="flex gap-2">
+                                    <a href="/membresias/asignar/" 
+                                       class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition shadow-md hover:shadow-lg">
+                                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                        </svg>
+                                        Asignar Membresía al Socio
+                                    </a>
+                                </div>
+                                <p class="text-xs text-red-600 mt-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    Los pagos deben estar asociados a una membresía
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                membresiaSection.classList.remove('hidden');
+                montoSugerido.classList.add('hidden');
+                
+                // Deshabilitar botón de submit
+                const submitButton = form.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                submitButton.classList.add('bg-gray-400', 'cursor-not-allowed');
+                submitButton.innerHTML = `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                    </svg>
+                    <span>Asigne una membresía primero</span>
+                `;
+            }
+        } catch (error) {
+            // Si hay error, simplemente ocultamos la sección
+            membresiaSection.classList.add('hidden');
         }
     });
     
+    function mostrarMembresias(membresias) {
+        membresiasContainer.innerHTML = '';
+        
+        membresias.forEach((membresia, index) => {
+            const div = document.createElement('div');
+            div.className = 'flex items-center p-3 border-2 border-gray-300 rounded-lg hover:border-blue-500 cursor-pointer transition';
+            div.innerHTML = `
+                <input type="radio" name="membresia" value="${membresia.id}" 
+                       id="membresia-${membresia.id}" 
+                       data-precio="${membresia.tipo_precio}"
+                       class="mr-3">
+                <label for="membresia-${membresia.id}" class="flex-1 cursor-pointer">
+                    <div class="font-semibold text-gray-800">${membresia.tipo_nombre}</div>
+                    <div class="text-sm text-gray-600">
+                        Válida hasta: ${membresia.fecha_fin} 
+                        <span class="ml-2 px-2 py-0.5 rounded text-xs ${membresia.estado_class}">${membresia.estado_text}</span>
+                    </div>
+                </label>
+                <div class="text-lg font-bold text-blue-600">S/ ${membresia.tipo_precio}</div>
+            `;
+            
+            // Evento para actualizar monto sugerido
+            const radio = div.querySelector('input[type="radio"]');
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    const precio = this.getAttribute('data-precio');
+                    const tipoNombre = membresia.tipo_nombre;
+                    
+                    // Auto-completar monto
+                    montoInput.value = precio;
+                    montoSugerido.querySelector('span').textContent = `S/ ${precio}`;
+                    montoSugerido.classList.remove('hidden');
+                    
+                    // Auto-sugerir concepto si está vacío
+                    if (!conceptoInput.value.trim()) {
+                        conceptoInput.value = `Pago de ${tipoNombre}`;
+                    }
+                    
+                    // Ocultar ayuda de concepto
+                    conceptoAyuda.classList.add('hidden');
+                }
+            });
+            
+            membresiasContainer.appendChild(div);
+        });
+    }
+    
     // Validación del formulario
     form.addEventListener('submit', function(e) {
-        const monto = parseFloat(document.getElementById('monto').value);
-        const socio = document.getElementById('socio').value;
+        const monto = parseFloat(montoInput.value);
+        const socio = socioSelect.value;
         const metodoPago = document.getElementById('metodo_pago').value;
         
         if (!socio) {

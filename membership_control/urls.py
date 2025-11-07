@@ -18,6 +18,9 @@ urlpatterns = [
     # pagos
     path("pagos/", include("payments.urls")),
 
-    # asistencia (de tu rama Custodio)
+    # asistencia
     path('asistencia/', include('asistencia.urls')),
+  
+    #membresías
+    path("membresias/", include("membresias.urls")),
 ]
