@@ -6,7 +6,12 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.http import JsonResponse
+from django.conf import settings
 import uuid
+
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 from django.views.decorators.cache import never_cache
 
@@ -95,3 +100,45 @@ def socios_por_vencer(request):
     }
 
     return render(request, 'socios/socios_por_vencer.html', context)
+
+def envio_aviso_membresia (socio, membresia):
+    subject = f'Aviso: Membresía por vencer - {membresia.tipo_membresia.nombre}'
+    from_email = settings.DEFAULT_FROM_EMAIL
+    to_email = [socio.correo]
+
+    html_content = render_to_string('socios/aviso_vencimiento.html', {
+                                    'socio': socio,
+                                    'membresia': membresia,
+                                    })
+    text_content = strip_tags(html_content)
+
+    email = EmailMultiAlternatives(subject, text_content, from_email, to_email)
+    email.attach_alternative(html_content, "text/html")
+    email.send()
+
+@login_required
+def generar_aviso(request):
+    d = 20
+
+    por_vencer = [
+        s for s in Membresia.objects.filter(activa=True).select_related('socio', 'tipo_membresia') if
+        s.esta_por_vencer(dias=d)
+    ]
+
+    for m in por_vencer:
+        envio_aviso_membresia(m.socio, m)
+
+    messages.success(request, f'Se han enviado {len(por_vencer)} avisos de membresías por vencer.')
+    return redirect('por_vencer')
+
+
+def vencimiento_programado():
+    por_vencer = [
+        s for s in Membresia.objects.filter(activa=True).select_related('socio')
+        if s.esta_por_vencer(dias=7)
+    ]
+
+    for m in por_vencer:
+        envio_aviso_membresia(m.socio, m)
+
+    print("Ejecución de vencimiento_programado realizado.")
