@@ -1,3 +1,38 @@
+/accounts/migrations/
+/core/migrations/
+/socios/migrations/
+/asistencia/migrations/
+/payments/migrations/
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Django
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media/
+staticfiles/
+
+# VSCode / PyCharm
+.vscode/
+.idea/
+
+# Environments
+.env
+venv/
+env/
+env_*/
+HEAD
+
+=======
 # Migraciones (ignorar todas excepto __init__.py)
 **/migrations/*
 !**/migrations/__init__.py
@@ -8,3 +43,4 @@ __pycache__/
 *$py.class
 *.so
 .Python
+>>>>>>> d0950ea47fd09464193c1d44cad6d942ac89a21f
