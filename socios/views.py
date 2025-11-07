@@ -10,6 +10,7 @@ import uuid
 
 from django.views.decorators.cache import never_cache
 
+from membresias.models import Membresia
 from socios.forms import SociosForm
 from .models import *
 
@@ -81,3 +82,16 @@ def editar_socio(request, id):
         'socio': socio,
     }
     return render(request, 'socios/editar_socio.html', context)
+
+@login_required
+def socios_por_vencer(request):
+    d = 30
+    por_vencer = [
+        s for s in Membresia.objects.filter(activa=True).select_related('socio', 'tipo_membresia') if s.esta_por_vencer(dias=d)
+    ]
+
+    context = {
+        'membresias': por_vencer,
+    }
+
+    return render(request, 'socios/socios_por_vencer.html', context)
