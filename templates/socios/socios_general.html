@@ -7,13 +7,16 @@
   <div class="max-w-7xl mx-auto bg-white shadow-xl rounded-2xl p-6">
     <!-- Encabezado -->
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-gray-700">Gestión de Socios</h1>
-      <a href="{% url 'nuevo_socio' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition flex items-center gap-2"
-      >
-        + Agregar Socio
-      </a>
+        <h1 class="text-2xl font-bold text-gray-700">Gestión de Socios</h1>
+        <div class="flex items-center gap-3">
+            <a href="{% url 'por_vencer' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition flex items-center gap-2">
+                Por Vencer
+            </a>
+            <a href="{% url 'nuevo_socio' %}" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition flex items-center gap-2">
+                + Agregar Socio
+            </a>
+        </div>
     </div>
-
     <!-- Tabla -->
     <div class="overflow-x-auto">
       <table class="min-w-full border border-gray-200 rounded-lg overflow-hidden">
@@ -27,7 +30,6 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
-          <!-- Ejemplo de fila (se reemplaza dinámicamente en Django con un for) -->
           {% for socio in socios %}
           <tr class="hover:bg-gray-50 transition">
             <td class="px-4 py-2 text-gray-700">{{ socio.nombre }}</td>
