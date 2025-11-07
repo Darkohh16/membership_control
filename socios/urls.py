@@ -12,4 +12,5 @@ urlpatterns = [
     path('agregar/', nuevo_socio, name='nuevo_socio'),
     path('<uuid:id>/editar/', editar_socio, name='editar_socio'),
     path('por_vencer/', socios_por_vencer, name='por_vencer'),
+    path('generar_aviso/', generar_aviso, name='generar_aviso'),
 ]
