@@ -68,11 +68,13 @@ class MembresiaAdmin(admin.ModelAdmin):
         'fecha_inicio',
         'fecha_fin',
         'activa',
+        'pagada',
         'dias_restantes_display',
     )
     
     list_filter = (
         'activa',
+        'pagada',
         'tipo_membresia',
         'fecha_inicio',
         'fecha_fin',
@@ -97,6 +99,7 @@ class MembresiaAdmin(admin.ModelAdmin):
                 'socio',
                 'tipo_membresia',
                 'activa',
+                'pagada',
             )
         }),
         ('Período', {

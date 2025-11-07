@@ -98,8 +98,13 @@ class Membresia(models.Model):
     )
     
     activa = models.BooleanField(
-        default=True,
+        default=False,  # Cambiado a False - se activa al pagar
         help_text="Indica si la membresía está activa actualmente"
+    )
+    
+    pagada = models.BooleanField(
+        default=False,
+        help_text="Indica si la membresía ha sido pagada"
     )
     
     observaciones = models.TextField(
