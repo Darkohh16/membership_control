@@ -1,6 +1,9 @@
 /accounts/migrations/
 /core/migrations/
 /socios/migrations/
+/asistencia/migrations/
+/payments/migrations/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -27,3 +30,4 @@ staticfiles/
 venv/
 env/
 env_*/
+
