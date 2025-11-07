@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum, Count, Q, Exists, OuterRef
+from django.db import transaction
 from decimal import Decimal
 from datetime import datetime, timedelta
 
@@ -61,13 +62,15 @@ def registrar_pago(request):
             socio_id = request.POST.get('socio')
             monto = request.POST.get('monto')
             metodo_pago = request.POST.get('metodo_pago')
-            estado = request.POST.get('estado')
             concepto = request.POST.get('concepto', '')
             notas = request.POST.get('notas', '')
             membresia_id = request.POST.get('membresia', '')
             
+            # El estado siempre será "Completado" (2) automáticamente
+            estado = 2
+            
             # Validaciones
-            if not socio_id or not monto or not metodo_pago or not estado:
+            if not socio_id or not monto or not metodo_pago:
                 messages.error(request, 'Todos los campos obligatorios deben ser completados.')
                 return redirect('payments:registrar_pago')
             
@@ -85,6 +88,12 @@ def registrar_pago(request):
             if membresia_id:
                 try:
                     membresia = Membresia.objects.get(id=membresia_id)
+                    
+                    # Verificar que la membresía no esté ya pagada
+                    if membresia.pagada:
+                        messages.error(request, 'Esta membresía ya ha sido pagada.')
+                        return redirect('payments:registrar_pago')
+                        
                 except Membresia.DoesNotExist:
                     messages.error(request, 'La membresía seleccionada no existe.')
                     return redirect('payments:registrar_pago')
@@ -93,19 +102,28 @@ def registrar_pago(request):
                 messages.error(request, 'Debe seleccionar una membresía. Los pagos deben estar asociados a una membresía.')
                 return redirect('payments:registrar_pago')
             
-            # Crear el pago
-            pago = Pago.objects.create(
-                socio=socio,
-                monto=monto_decimal,
-                metodo_pago=int(metodo_pago),
-                estado=int(estado),
-                concepto=concepto,
-                notas=notas,
-                registrado_por=request.user,
-                membresia=membresia  # Asociar membresía si existe
-            )
+            # Usar transacción para garantizar atomicidad
+            with transaction.atomic():
+                # Crear el pago (estado siempre será 2 = Completado)
+                pago = Pago.objects.create(
+                    socio=socio,
+                    monto=monto_decimal,
+                    metodo_pago=int(metodo_pago),
+                    estado=2,  # Siempre completado
+                    concepto=concepto,
+                    notas=notas,
+                    registrado_por=request.user,
+                    membresia=membresia  # Asociar membresía
+                )
+                
+                # ACTIVAR LA MEMBRESÍA después del pago
+                if membresia:
+                    membresia.activa = True
+                    membresia.pagada = True
+                    membresia.save()  # El método save() desactivará otras membresías activas
             
-            messages.success(request, f'Pago registrado exitosamente. Recibo: {pago.numero_recibo}')
+            messages.success(request, f'Pago registrado exitosamente. Recibo: {pago.numero_recibo}. La membresía ha sido activada.')
+            # POST-Redirect-GET pattern: Redirigir después de procesar POST
             return redirect('payments:detalle_pago', pago_id=pago.id)
             
         except Socio.DoesNotExist:
@@ -119,11 +137,11 @@ def registrar_pago(request):
             return redirect('payments:registrar_pago')
     
     # GET: Mostrar formulario
+    # Mostrar todos los socios (el filtro se hace en el API que devuelve solo membresías pendientes)
     socios = Socio.objects.all().order_by('apellido', 'nombre')
     
     context = {
         'metodos_pago': METODOS_PAGO,
-        'estados_pago': ESTADOS_PAGO,
         'socios': socios,
     }
     

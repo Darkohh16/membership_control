@@ -98,6 +98,7 @@ def asignar_membresia(request):
         messages.error(request, 'No tienes permisos para realizar esta acción.')
         return redirect('listar_tipos')
     
+    from datetime import date
     socios = Socio.objects.all().order_by('apellido', 'nombre')
     tipos = TipoMembresia.objects.filter(activo=True)
     
@@ -112,15 +113,36 @@ def asignar_membresia(request):
             return render(request, 'membresias/asignar_membresia.html', {
                 'socios': socios,
                 'tipos': tipos,
+                'today': date.today(),
             })
         
         try:
             socio = get_object_or_404(Socio, pk=socio_id)
             tipo = get_object_or_404(TipoMembresia, pk=tipo_id)
             
-            # Calcular fecha de fin
+            # Validar que no tenga membresías activas
+            membresias_activas = Membresia.objects.filter(socio=socio, activa=True)
+            if membresias_activas.exists():
+                membresia_activa = membresias_activas.first()
+                messages.error(request, f'Este socio ya tiene una membresía activa ({membresia_activa.tipo_membresia.nombre}). Debe desactivarla primero para asignar una nueva.')
+                return render(request, 'membresias/asignar_membresia.html', {
+                    'socios': socios,
+                    'tipos': tipos,
+                    'today': date.today(),
+                })
+            
+            # Validar que la fecha no sea anterior a hoy
             from datetime import datetime
             fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+            
+            if fecha_inicio_dt < date.today():
+                messages.error(request, 'La fecha de inicio no puede ser anterior a la fecha actual.')
+                return render(request, 'membresias/asignar_membresia.html', {
+                    'socios': socios,
+                    'tipos': tipos,
+                    'today': date.today(),
+                })
+            
             fecha_fin = fecha_inicio_dt + timedelta(days=tipo.duracion_dias)
             
             membresia = Membresia.objects.create(
@@ -128,11 +150,12 @@ def asignar_membresia(request):
                 tipo_membresia=tipo,
                 fecha_inicio=fecha_inicio_dt,
                 fecha_fin=fecha_fin,
-                activa=True,
+                activa=False,  # NO se activa hasta que se pague
+                pagada=False,  # Membresía aún no pagada
                 observaciones=observaciones
             )
             
-            messages.success(request, f'Membresía asignada exitosamente a {socio.nombre} {socio.apellido}.')
+            messages.success(request, f'Membresía asignada exitosamente a {socio.nombre} {socio.apellido}. Recuerde registrar el pago para activarla.')
             return redirect('listar_membresias_socio', socio_id=socio.id)
         except Exception as e:
             messages.error(request, f'Error al asignar membresía: {str(e)}')
@@ -140,6 +163,7 @@ def asignar_membresia(request):
     context = {
         'socios': socios,
         'tipos': tipos,
+        'today': date.today(),
     }
     return render(request, 'membresias/asignar_membresia.html', context)
 
@@ -179,26 +203,30 @@ def desactivar_membresia(request, membresia_id):
 @login_required
 def api_membresias_socio(request, socio_id):
     """
-    API endpoint para obtener las membresías activas de un socio.
-    Retorna JSON con la información de las membresías.
+    API endpoint para obtener las membresías pendientes de pago de un socio.
+    Retorna JSON con la información de las membresías que aún no han sido pagadas.
     """
     try:
         socio = get_object_or_404(Socio, pk=socio_id)
-        membresias = Membresia.objects.filter(socio=socio, activa=True).select_related('tipo_membresia')
+        # Solo membresías NO pagadas (pendientes de pago)
+        membresias = Membresia.objects.filter(
+            socio=socio, 
+            pagada=False
+        ).select_related('tipo_membresia')
         
         membresias_data = []
         for membresia in membresias:
             # Determinar el estado de la membresía
             dias_restantes = membresia.dias_restantes()
             if membresia.esta_vencida():
-                estado_text = 'Vencida'
+                estado_text = 'Vencida (Sin pagar)'
                 estado_class = 'bg-red-100 text-red-800'
             elif dias_restantes <= 7:
-                estado_text = f'{dias_restantes} días restantes'
+                estado_text = f'Pendiente de pago'
                 estado_class = 'bg-yellow-100 text-yellow-800'
             else:
-                estado_text = f'{dias_restantes} días restantes'
-                estado_class = 'bg-green-100 text-green-800'
+                estado_text = f'Pendiente de pago'
+                estado_class = 'bg-yellow-100 text-yellow-800'
             
             membresias_data.append({
                 'id': membresia.id,

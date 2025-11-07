@@ -18,20 +18,93 @@
             <form method="POST" id="pagoForm" class="space-y-6">
                 {% csrf_token %}
                 
-                <!-- Selección de Socio -->
-                <div>
-                    <label for="socio" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Socio <span class="text-red-500">*</span>
+                <!-- Selección de Socio con Buscador -->
+                <div class="space-y-3">
+                    <label for="socio" class="block text-sm font-semibold text-gray-700 mb-3">
+                        Seleccionar Socio <span class="text-red-500">*</span>
                     </label>
-                    <select name="socio" id="socio" required
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition">
-                        <option value="">Seleccione un socio...</option>
-                        {% for socio in socios %}
-                        <option value="{{ socio.id }}" data-dni="{{ socio.dni_carnet }}" data-correo="{{ socio.correo }}">
-                            {{ socio.apellido }}, {{ socio.nombre }} - DNI: {{ socio.dni_carnet }}
-                        </option>
-                        {% endfor %}
-                    </select>
+                    
+                    <!-- Input de búsqueda mejorado -->
+                    <div class="relative group">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                            <svg class="w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <input type="text" 
+                               id="socio-search" 
+                               placeholder="Buscar por nombre, apellido o número de documento..."
+                               class="w-full pl-11 pr-4 py-3.5 text-gray-700 bg-white border-2 border-gray-300 rounded-lg 
+                                      focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none
+                                      transition-all duration-200 placeholder-gray-400">
+                        <div id="search-clear" class="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer hidden group">
+                            <svg class="w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Contador de resultados -->
+                    <div id="results-counter" class="flex items-center justify-between px-1 hidden">
+                        <span class="text-xs font-medium text-gray-600">
+                            <span id="visible-count">0</span> socio(s) encontrado(s)
+                        </span>
+                        <button type="button" id="clear-search" class="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline">
+                            Limpiar búsqueda
+                        </button>
+                    </div>
+                    
+                    <!-- Select de socios (filtrable) mejorado -->
+                    <div class="relative">
+                        <select name="socio" 
+                                id="socio" 
+                                required 
+                                size="6"
+                                class="w-full px-4 py-2 text-gray-700 bg-white border-2 border-gray-300 rounded-lg 
+                                       focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none
+                                       transition-all duration-200 cursor-pointer
+                                       hover:border-gray-400">
+                            <option value="" disabled selected class="text-gray-700 font-medium">Seleccione un socio de la lista...</option>
+                            {% for socio in socios %}
+                            <option value="{{ socio.id }}" 
+                                    data-nombre="{{ socio.nombre|lower }}" 
+                                    data-apellido="{{ socio.apellido|lower }}" 
+                                    data-dni="{{ socio.dni_carnet }}" 
+                                    data-correo="{{ socio.correo }}"
+                                    class="py-2 hover:bg-blue-50">
+                                {{ socio.apellido }}, {{ socio.nombre }} - DNI: {{ socio.dni_carnet }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        
+                        <!-- Indicador de carga -->
+                        <div id="loading-indicator" class="absolute inset-0 bg-white bg-opacity-90 rounded-lg flex items-center justify-center hidden">
+                            <div class="flex flex-col items-center space-y-2">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                                <span class="text-sm text-gray-600">Cargando...</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mensajes de estado -->
+                    <div id="no-results" class="hidden">
+                        <div class="flex items-start space-x-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                            <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                            </svg>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-amber-800">No se encontraron coincidencias</p>
+                                <p class="text-xs text-amber-700 mt-1">Intente con otro término de búsqueda o limpie el filtro para ver todos los socios.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-2 text-xs text-gray-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span>Utilice el buscador para filtrar la lista de socios rápidamente</span>
+                    </div>
                 </div>
 
                 <!-- Membresía Activa del Socio -->
@@ -77,24 +150,15 @@
                     </div>
                 </div>
 
-                <!-- Estado del Pago -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-3">
-                        Estado del Pago <span class="text-red-500">*</span>
-                    </label>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {% for nombre, valor in estados_pago.items %}
-                        <label class="relative cursor-pointer">
-                            <input type="radio" name="estado" value="{{ valor }}" 
-                                   {% if valor == 2 %}checked{% endif %}
-                                   class="peer sr-only">
-                            <div class="px-4 py-3 border-2 border-gray-300 rounded-lg text-center transition-all
-                                        peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-700
-                                        hover:border-blue-300 hover:bg-gray-50">
-                                <span class="text-sm font-medium">{{ nombre }}</span>
-                            </div>
-                        </label>
-                        {% endfor %}
+                <!-- Info: Estado automático -->
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-blue-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                        <p class="text-sm text-blue-800">
+                            <span class="font-semibold">Estado del pago:</span> El estado se establecerá automáticamente como <span class="font-bold">"Completado"</span> al registrar el pago.
+                        </p>
                     </div>
                 </div>
 
@@ -146,8 +210,22 @@
 {% block extra_js %}
 {{ block.super }}
 <script>
+// Prevenir que el navegador cachee la página del formulario
+window.addEventListener('pageshow', function(event) {
+    if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        // Si la página se cargó desde el caché (back button), redirigir a la lista
+        window.location.href = "{% url 'payments:listar_pagos' %}";
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     const socioSelect = document.getElementById('socio');
+    const socioSearch = document.getElementById('socio-search');
+    const searchClear = document.getElementById('search-clear');
+    const clearSearchBtn = document.getElementById('clear-search');
+    const resultsCounter = document.getElementById('results-counter');
+    const visibleCountSpan = document.getElementById('visible-count');
+    const noResults = document.getElementById('no-results');
     const membresiaSection = document.getElementById('membresia-section');
     const membresiasContainer = document.getElementById('membresias-container');
     const montoInput = document.getElementById('monto');
@@ -156,6 +234,85 @@ document.addEventListener('DOMContentLoaded', function() {
     const conceptoAyuda = document.getElementById('concepto-ayuda');
     const form = document.getElementById('pagoForm');
     
+    // ========== BUSCADOR DE SOCIOS MEJORADO ==========
+    function updateSearchUI(searchTerm) {
+        const options = socioSelect.querySelectorAll('option');
+        let visibleCount = 0;
+        
+        options.forEach(option => {
+            if (option.value === '') {
+                option.style.display = 'none'; // Ocultar opción vacía
+                return;
+            }
+            
+            const nombre = option.getAttribute('data-nombre') || '';
+            const apellido = option.getAttribute('data-apellido') || '';
+            const dni = option.getAttribute('data-dni') || '';
+            
+            // Buscar en nombre, apellido o DNI
+            const matches = searchTerm === '' || 
+                          nombre.includes(searchTerm) || 
+                          apellido.includes(searchTerm) || 
+                          dni.includes(searchTerm);
+            
+            if (matches) {
+                option.style.display = '';
+                visibleCount++;
+            } else {
+                option.style.display = 'none';
+            }
+        });
+        
+        // Actualizar contador y mensajes
+        if (searchTerm !== '') {
+            resultsCounter.classList.remove('hidden');
+            visibleCountSpan.textContent = visibleCount;
+            searchClear.classList.remove('hidden');
+            
+            if (visibleCount === 0) {
+                noResults.classList.remove('hidden');
+                socioSelect.classList.add('opacity-50', 'cursor-not-allowed');
+            } else {
+                noResults.classList.add('hidden');
+                socioSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        } else {
+            resultsCounter.classList.add('hidden');
+            searchClear.classList.add('hidden');
+            noResults.classList.add('hidden');
+            socioSelect.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    }
+    
+    // Evento de búsqueda
+    socioSearch.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        updateSearchUI(searchTerm);
+    });
+    
+    // Botón para limpiar búsqueda (X en el input)
+    searchClear.addEventListener('click', function() {
+        socioSearch.value = '';
+        updateSearchUI('');
+        socioSearch.focus();
+    });
+    
+    // Botón "Limpiar búsqueda"
+    clearSearchBtn.addEventListener('click', function() {
+        socioSearch.value = '';
+        updateSearchUI('');
+        socioSearch.focus();
+    });
+    
+    // Limpiar búsqueda al seleccionar un socio
+    socioSelect.addEventListener('change', function() {
+        if (this.value) {
+            socioSearch.value = '';
+            updateSearchUI('');
+        }
+    });
+    
+    // ========== CARGA DE MEMBRESÍAS ==========
     // Cargar membresías cuando se selecciona un socio
     socioSelect.addEventListener('change', async function() {
         const socioId = this.value;
@@ -197,32 +354,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 `;
             } else {
                 membresiasContainer.innerHTML = `
-                    <div class="bg-red-50 border-2 border-red-300 rounded-lg p-4">
-                        <div class="flex items-start">
-                            <svg class="w-6 h-6 text-red-600 mr-3 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    <div class="bg-amber-50 border-l-4 border-amber-400 rounded-r-lg p-5">
+                        <div class="flex items-start space-x-3">
+                            <svg class="w-6 h-6 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                             </svg>
                             <div class="flex-1">
-                                <h4 class="font-semibold text-red-800 mb-2">⚠️ No se puede registrar el pago</h4>
-                                <p class="text-sm text-red-700 mb-3">
-                                    Este socio no tiene membresías activas. Para registrar un pago de membresía, 
-                                    primero debes asignar una membresía al socio.
+                                <h4 class="font-bold text-amber-900 mb-2 text-base">No hay membresías pendientes de pago</h4>
+                                <p class="text-sm text-amber-800 mb-3 leading-relaxed">
+                                    Este socio no tiene membresías pendientes de pago. Esto puede deberse a:
                                 </p>
-                                <div class="flex gap-2">
+                                <ul class="text-sm text-amber-800 mb-4 space-y-1.5 ml-4">
+                                    <li class="flex items-start">
+                                        <span class="text-amber-500 mr-2">•</span>
+                                        <span>Ya pagó todas sus membresías asignadas</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="text-amber-500 mr-2">•</span>
+                                        <span>No tiene membresías asignadas aún</span>
+                                    </li>
+                                </ul>
+                                <div class="pt-2">
                                     <a href="/membresias/asignar/" 
-                                       class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition shadow-md hover:shadow-lg">
+                                       class="inline-flex items-center px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold rounded-lg transition-all shadow-sm hover:shadow-md">
                                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                         </svg>
-                                        Asignar Membresía al Socio
+                                        Asignar Nueva Membresía
                                     </a>
                                 </div>
-                                <p class="text-xs text-red-600 mt-3 flex items-center">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    Los pagos deben estar asociados a una membresía
-                                </p>
                             </div>
                         </div>
                     </div>
@@ -239,10 +399,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
                     </svg>
-                    <span>Asigne una membresía primero</span>
+                    <span>Sin membresías pendientes</span>
                 `;
             }
         } catch (error) {
+            console.error('Error al cargar membresías:', error);
             // Si hay error, simplemente ocultamos la sección
             membresiaSection.classList.add('hidden');
         }
@@ -295,36 +456,58 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Validación del formulario
+    // ========== VALIDACIÓN DEL FORMULARIO ==========
+    let isSubmitting = false;  // Flag para prevenir doble envío
+    
     form.addEventListener('submit', function(e) {
+        // Prevenir doble envío
+        if (isSubmitting) {
+            e.preventDefault();
+            return false;
+        }
+        
         const monto = parseFloat(montoInput.value);
         const socio = socioSelect.value;
         const metodoPago = document.getElementById('metodo_pago').value;
         
         if (!socio) {
             e.preventDefault();
-            alert('⚠️ Debe seleccionar un socio');
+            alert('ATENCIÓN: Debe seleccionar un socio');
             return false;
         }
         
         if (!metodoPago) {
             e.preventDefault();
-            alert('⚠️ Debe seleccionar un método de pago');
+            alert('ATENCIÓN: Debe seleccionar un método de pago');
             return false;
         }
         
         if (monto <= 0 || isNaN(monto)) {
             e.preventDefault();
-            alert('⚠️ El monto debe ser mayor a 0');
+            alert('ATENCIÓN: El monto debe ser mayor a 0');
             return false;
         }
         
-        // Confirmación
+        // Confirmación (solo una vez)
         const nombreSocio = socioSelect.options[socioSelect.selectedIndex].text;
         if (!confirm(`¿Confirmar registro de pago de S/ ${monto.toFixed(2)} para ${nombreSocio}?`)) {
             e.preventDefault();
             return false;
         }
+        
+        // Marcar como enviando para prevenir doble click
+        isSubmitting = true;
+        
+        // Deshabilitar botón de envío
+        const submitButton = form.querySelector('button[type="submit"]');
+        submitButton.disabled = true;
+        submitButton.innerHTML = `
+            <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span>Procesando...</span>
+        `;
     });
 });
 </script>
