@@ -147,7 +147,7 @@ def registrar_pago(request):
     
     return render(request, 'payments/registrar_pago.html', context)
 
-    @login_required
+@login_required
 def historial_pagos_socio(request, socio_id):
     """
     Vista para mostrar el historial de pagos de un socio específico.
