@@ -10,4 +10,5 @@ urlpatterns = [
     path('desactivar/<int:membresia_id>/', views.desactivar_membresia, name='desactivar_membresia'),
     # API endpoints - UUID para socios
     path('api/socio/<uuid:socio_id>/', views.api_membresias_socio, name='api_membresias_socio'),
+    path('detalle/<uuid:socio_id>/', views.detalle_o_asignar_membresia, name='detalle_o_asignar_membresia'),
 ]

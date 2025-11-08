@@ -248,3 +248,48 @@ def api_membresias_socio(request, socio_id):
             'success': False,
             'error': str(e)
         }, status=400)
+
+@login_required
+def detalle_o_asignar_membresia(request, socio_id):
+    """
+    Vista combinada: muestra detalle de la membresía actual del socio,
+    o permite asignarle una nueva si no tiene ninguna activa.
+    """
+    socio = get_object_or_404(Socio, id=socio_id)
+    membresia_activa = Membresia.objects.filter(socio=socio, activa=True).first()
+    tipos = TipoMembresia.objects.filter(activo=True)
+
+    if request.method == 'POST' and not membresia_activa:
+        tipo_id = request.POST.get('tipo_membresia')
+        fecha_inicio = request.POST.get('fecha_inicio')
+        observaciones = request.POST.get('observaciones', '')
+
+        if not tipo_id or not fecha_inicio:
+            messages.error(request, 'Debe seleccionar un tipo y una fecha de inicio.')
+        else:
+            tipo = get_object_or_404(TipoMembresia, pk=tipo_id)
+            from datetime import datetime, timedelta, date
+
+            fecha_inicio_dt = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+            if fecha_inicio_dt < date.today():
+                messages.error(request, 'La fecha de inicio no puede ser anterior a hoy.')
+            else:
+                fecha_fin = fecha_inicio_dt + timedelta(days=tipo.duracion_dias)
+                Membresia.objects.create(
+                    socio=socio,
+                    tipo_membresia=tipo,
+                    fecha_inicio=fecha_inicio_dt,
+                    fecha_fin=fecha_fin,
+                    activa=True,
+                    pagada=False,
+                    observaciones=observaciones
+                )
+                messages.success(request, f'Membresía asignada exitosamente a {socio.nombre} {socio.apellido}.')
+                return redirect('detalle_o_asignar_membresia', socio_id=socio.id)
+
+    context = {
+        'socio': socio,
+        'membresia': membresia_activa,
+        'tipos': tipos,
+    }
+    return render(request, 'membresias/detalle_membresia_socio.html', context)
