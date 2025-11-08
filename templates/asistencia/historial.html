@@ -13,11 +13,6 @@
             <h1 class="text-primary">
                 <i class="bi bi-clock-history"></i> Historial de Asistencia
             </h1>
-            <div>
-                <a href="{% url 'asistencia:registrar_asistencia_form' %}" class="btn btn-primary me-2">
-                    <i class="bi bi-arrow-left"></i> Volver a Registro
-                </a>
-            </div>
         </div>
 
         {% if asistencias %}
@@ -123,18 +118,15 @@
                         <br>
                         Comienza registrando la primera asistencia.
                     </p>
-                    <a href="{% url 'asistencia:registrar_asistencia_form' %}" class="btn btn-primary btn-lg">
-                        <i class="bi bi-plus-circle"></i> Registrar Primera Asistencia
+                    <a href="{% url 'asistencia:buscar_socio' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-search"></i> Buscar Socio para Registrar
                     </a>
                 </div>
             </div>
         {% endif %}
 
-        <!-- Botones de navegación adicionales -->
-        <div class="mt-4 d-flex gap-2">
-            <a href="{% url 'asistencia:registrar_asistencia_form' %}" class="btn btn-outline-primary">
-                <i class="bi bi-file-earmark-plus"></i> Nuevo Registro
-            </a>
+        <!-- Botón de navegación -->
+        <div class="mt-4">
             <a href="{% url 'asistencia:buscar_socio' %}" class="btn btn-outline-success">
                 <i class="bi bi-search"></i> Buscar Socio
             </a>
