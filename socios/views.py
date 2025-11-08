@@ -90,7 +90,7 @@ def editar_socio(request, id):
 
 @login_required
 def socios_por_vencer(request):
-    d = 30
+    d = 15
     por_vencer = [
         s for s in Membresia.objects.filter(activa=True).select_related('socio', 'tipo_membresia') if s.esta_por_vencer(dias=d)
     ]
