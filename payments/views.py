@@ -146,3 +146,29 @@ def registrar_pago(request):
     }
     
     return render(request, 'payments/registrar_pago.html', context)
+
+    @login_required
+def historial_pagos_socio(request, socio_id):
+    """
+    Vista para mostrar el historial de pagos de un socio específico.
+    US06: Como administrador, quiero ver un historial de pagos por socio.
+    """
+    # Verificar que el usuario sea administrador
+    if request.user.perfil != 1:  # 1 = Administrador
+        messages.error(request, 'No tienes permisos para ver esta página.')
+        return redirect('dashboard')  # Redirigir a una página segura
+
+    socio = get_object_or_404(Socio, id=socio_id)
+    
+    # Queryset optimizado para obtener los pagos del socio
+    pagos = Pago.objects.filter(socio=socio).select_related(
+        'membresia__tipo_membresia', 
+        'registrado_por'
+    ).order_by('-fecha_pago')
+    
+    context = {
+        'socio': socio,
+        'pagos': pagos,
+    }
+    
+    return render(request, 'payments/historial_pagos_socio.html', context)

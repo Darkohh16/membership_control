@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">
+            Historial de Pagos de: <span class="text-blue-600">{{ socio.nombre }} {{ socio.apellido }}</span>
+        </h1>
+        <a href="{% url 'socios_general' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300">
+            <i class="fas fa-arrow-left mr-2"></i> Volver a Socios
+        </a>
+    </div>
+
+    {% if pagos %}
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full leading-normal">
+                <thead class="bg-blue-50 text-gray-700">
+                    <tr>
+                        <th class="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold uppercase tracking-wider">
+                            Recibo
+                        </th>
+                        <th class="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold uppercase tracking-wider">
+                            Fecha de Pago
+                        </th>
+                        <th class="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold uppercase tracking-wider">
+                            Concepto / Membresía
+                        </th>
+                        <th class="px-5 py-3 border-b-2 border-gray-200 text-right text-xs font-semibold uppercase tracking-wider">
+                            Monto
+                        </th>
+                        <th class="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold uppercase tracking-wider">
+                            Método de Pago
+                        </th>
+                        <th class="px-5 py-3 border-b-2 border-gray-200 text-center text-xs font-semibold uppercase tracking-wider">
+                            Estado
+                        </th>
+                        <th class="px-5 py-3 border-b-2 border-gray-200 text-left text-xs font-semibold uppercase tracking-wider">
+                            Registrado por
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pago in pagos %}
+                    <tr class="hover:bg-gray-100">
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            <a href="{% url 'payments:detalle_pago' pago.id %}" class="text-blue-600 hover:underline font-semibold">
+                                {{ pago.numero_recibo }}
+                            </a>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            {{ pago.fecha_pago|date:"d/m/Y H:i" }}
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            {% if pago.membresia %}
+                                <span class="font-semibold">{{ pago.membresia.tipo_membresia.nombre }}</span>
+                            {% else %}
+                                {{ pago.concepto|default:"N/A" }}
+                            {% endif %}
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm text-right">
+                            <span class="font-mono font-semibold">S/ {{ pago.monto|intcomma }}</span>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            {{ pago.get_metodo_pago_display_custom }}
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm text-center">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold {{ pago.get_estado_badge_class }}">
+                                {{ pago.get_estado_display_custom }}
+                            </span>
+                        </td>
+                        <td class="px-5 py-4 border-b border-gray-200 bg-white text-sm">
+                            {{ pago.registrado_por.username|default:"N/A" }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg shadow-md" role="alert">
+        <p class="font-bold">Sin resultados</p>
+        <p>Este socio no tiene pagos registrados hasta el momento.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

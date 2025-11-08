@@ -10,4 +10,8 @@ urlpatterns = [
     # Listado y detalle de pagos
     path('', views.listar_pagos, name='listar_pagos'),
     path('<int:pago_id>/', views.detalle_pago, name='detalle_pago'),
+
+      # Historial de pagos por socio (US06)
+    path('historial/<uuid:socio_id>/', views.historial_pagos_socio, name='historial_pagos_socio'),
+
 ]
