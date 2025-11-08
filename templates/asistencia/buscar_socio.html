@@ -15,11 +15,6 @@
             <h1 class="text-primary">
                 <i class="bi bi-search"></i> Buscar Socio
             </h1>
-            <div>
-                <a href="{% url 'asistencia:registrar_asistencia_form' %}" class="btn btn-success me-2">
-                    <i class="bi bi-arrow-left"></i> Formulario Directo
-                </a>
-            </div>
         </div>
 
         <!-- Mensajes -->
@@ -145,11 +140,8 @@
         </div>
         {% endif %}
 
-        <!-- Botones de navegación -->
-        <div class="mt-4 d-flex gap-2">
-            <a href="{% url 'asistencia:registrar_asistencia_form' %}" class="btn btn-outline-success">
-                <i class="bi bi-file-earmark-plus"></i> Formulario Directo
-            </a>
+        <!-- Botón de navegación -->
+        <div class="mt-4">
             <a href="{% url 'asistencia:historial' %}" class="btn btn-outline-info">
                 <i class="bi bi-clock-history"></i> Ver Historial
             </a>
