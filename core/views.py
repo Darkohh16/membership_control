@@ -92,14 +92,14 @@ def home(request):
     ).aggregate(total=Sum('monto'))['total'] or Decimal('0.00')
     
     #pagos pendientes
-    pagos_pendientes = Pago.objects.filter(
-        estado=ESTADOS_PAGO['Pendiente']
+    pagos_pendientes = Membresia.objects.filter(
+        pagada=False
     ).count()
     
     #monto total pendiente
-    monto_pendiente = Pago.objects.filter(
-        estado=ESTADOS_PAGO['Pendiente']
-    ).aggregate(total=Sum('monto'))['total'] or Decimal('0.00')
+    monto_pendiente = Membresia.objects.filter(
+        pagada=False
+    ).aggregate(total=Sum('tipo_membresia__precio'))['total'] or Decimal('0.00')
     
     #promedio de pago
     promedio_pago = Pago.objects.filter(

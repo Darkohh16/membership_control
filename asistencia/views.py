@@ -3,25 +3,6 @@ from django.contrib import messages
 from django.db.models import Q
 from .models import Asistencia
 from socios.models import Socio
-from .forms import RegistrarAsistenciaForm
-
-
-def registrar_asistencia_form(request):
-    """Vista con formulario para registrar asistencia"""
-    if request.method == "POST":
-        form = RegistrarAsistenciaForm(request.POST)
-        if form.is_valid():
-            asistencia = form.save()
-            socio = asistencia.socio
-            messages.success(
-                request, 
-                f"✅ Asistencia registrada para {socio.nombre} {socio.apellido}"
-            )
-            return redirect("asistencia:registrar_asistencia_form")
-    else:
-        form = RegistrarAsistenciaForm()
-
-    return render(request, "asistencia/registrar_asistencia.html", {"form": form})
 
 
 def historial_asistencia(request):
