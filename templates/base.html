@@ -10,8 +10,43 @@
 </head>
 {% block extra_css %}
     <style>
+        body {
+            background: linear-gradient(to bottom, #f8fafc 0%, #f1f5f9 100%);
+        }
+
         .toast-message {
             transition: opacity 0.5s ease, transform 0.5s ease;
+            backdrop-filter: blur(10px);
+            animation: slideInRight 0.4s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #3b82f6, #2563eb);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #2563eb, #1d4ed8);
         }
     </style>
 {% endblock %}
@@ -22,19 +57,37 @@
           <div
             class="
               toast-message
-              px-4 py-3 rounded-lg shadow-lg text-sm
+              px-6 py-4 rounded-xl shadow-2xl text-sm font-medium
+              flex items-center space-x-3 border
               {% if message.tags == 'success' %}
-                bg-green-500 text-white
+                bg-gradient-to-r from-green-500 to-emerald-500 text-white border-green-400
               {% elif message.tags == 'error' %}
-                bg-red-500 text-white
+                bg-gradient-to-r from-red-500 to-rose-500 text-white border-red-400
               {% elif message.tags == 'warning' %}
-                bg-yellow-500 text-gray-900
+                bg-gradient-to-r from-yellow-400 to-amber-400 text-gray-900 border-yellow-300
               {% else %}
-                bg-gray-700 text-white
+                bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-blue-400
               {% endif %}
             "
           >
-            {{ message }}
+            {% if message.tags == 'success' %}
+              <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            {% elif message.tags == 'error' %}
+              <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            {% elif message.tags == 'warning' %}
+              <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+            {% else %}
+              <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            {% endif %}
+            <span>{{ message }}</span>
           </div>
         {% endfor %}
       </div>
@@ -52,9 +105,19 @@
         {% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-white border-t py-3 text-center text-sm text-gray-500">
-        &copy; 2025 Sistema MembershipControl — Todos los derechos reservados.
+    <!-- Footer Moderno -->
+    <footer class="bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-100 py-6 text-center">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex items-center justify-center space-x-2 text-gray-600 mb-2">
+                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+                <span class="font-semibold text-blue-700">MembershipControl</span>
+            </div>
+            <p class="text-sm text-gray-500">
+                &copy; 2025 Sistema de Gestión de Membresías — Todos los derechos reservados.
+            </p>
+        </div>
     </footer>
 </body>
 
