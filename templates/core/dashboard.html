@@ -30,7 +30,7 @@
     <!-- Tarjetas Principales de Estadísticas -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <!-- total de socios -->
-      <div class="card-modern group hover:scale-105 transition-all duration-300 bg-gradient-to-br from-blue-500 to-blue-700 text-white overflow-hidden relative">
+      <div class="card-modern group hover:scale-105 transition-all duration-300 bg-gradient-to-br from-blue-500 to-blue-700 text-white overflow-hidden relative h-full min-h-[200px]">
         <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
         <div class="relative z-10 p-6">
           <div class="flex items-center justify-between mb-4">
@@ -52,7 +52,7 @@
       </div>
 
       <!-- membresias Activas -->
-      <div class="card-modern group hover:scale-105 transition-all duration-300 bg-gradient-to-br from-green-500 to-green-700 text-white overflow-hidden relative">
+      <div class="card-modern group hover:scale-105 transition-all duration-300 bg-gradient-to-br from-green-500 to-green-700 text-white overflow-hidden relative h-full min-h-[200px]">
         <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
         <div class="relative z-10 p-6">
           <div class="flex items-center justify-between mb-4">
@@ -74,7 +74,7 @@
       </div>
 
       <!-- ingresos del Mes -->
-      <div class="card-modern group hover:scale-105 transition-all duration-300 bg-gradient-to-br from-purple-500 to-purple-700 text-white overflow-hidden relative">
+      <div class="card-modern group hover:scale-105 transition-all duration-300 bg-gradient-to-br from-purple-500 to-purple-700 text-white overflow-hidden relative h-full min-h-[200px]">
         <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
         <div class="relative z-10 p-6">
           <div class="flex items-center justify-between mb-4">
@@ -96,7 +96,7 @@
       </div>
 
       <!-- pagos pendientes -->
-      <div class="card-modern group hover:scale-105 transition-all duration-300 bg-gradient-to-br from-red-500 to-red-700 text-white overflow-hidden relative">
+      <div class="card-modern group hover:scale-105 transition-all duration-300 bg-gradient-to-br from-red-500 to-red-700 text-white overflow-hidden relative h-full min-h-[200px]">
         <div class="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
         <div class="relative z-10 p-6">
           <div class="flex items-center justify-between mb-4">
@@ -321,8 +321,8 @@
     <!-- Últimos Pagos y Nuevos Socios -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
       <!-- ultimos pagos -->
-      <div class="card-modern bg-white hover:shadow-2xl transition-all duration-300">
-        <div class="p-6">
+      <div class="card-modern bg-white hover:shadow-2xl transition-all duration-300 h-full">
+        <div class="p-6 flex flex-col h-full">
           <div class="flex items-center space-x-3 mb-6">
             <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
               <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -332,7 +332,7 @@
             <h3 class="text-xl font-bold text-gray-800">Últimos Pagos</h3>
           </div>
           {% if ultimos_pagos %}
-          <div class="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
+          <div class="space-y-3 max-h-96 overflow-y-auto custom-scrollbar flex-1">
             {% for pago in ultimos_pagos %}
             <div class="border-l-4 border-green-500 bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg hover:shadow-md transition-all duration-300">
               <div class="flex justify-between items-start">
@@ -375,8 +375,8 @@
       </div>
 
       <!-- ultimos socios registrados -->
-      <div class="card-modern bg-white hover:shadow-2xl transition-all duration-300">
-        <div class="p-6">
+      <div class="card-modern bg-white hover:shadow-2xl transition-all duration-300 h-full">
+        <div class="p-6 flex flex-col h-full">
           <div class="flex items-center space-x-3 mb-6">
             <div class="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-xl flex items-center justify-center shadow-lg">
               <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -386,7 +386,7 @@
             <h3 class="text-xl font-bold text-gray-800">Nuevos Socios</h3>
           </div>
           {% if ultimos_socios %}
-          <div class="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
+          <div class="space-y-3 max-h-96 overflow-y-auto custom-scrollbar flex-1">
             {% for socio in ultimos_socios %}
             <div class="border-l-4 border-primary-500 bg-gradient-to-r from-primary-50 to-blue-50 p-4 rounded-lg hover:shadow-md transition-all duration-300">
               <div class="flex items-center space-x-3">
