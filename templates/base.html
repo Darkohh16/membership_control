@@ -112,7 +112,6 @@
             animation: slideInFromTop 0.5s ease-out;
         }
 
-        /* Estilos para el Dashboard Moderno */
         .card-modern {
             border-radius: 1rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -190,7 +189,7 @@
 {% endblock %}
 <body class="min-h-screen flex flex-col font-sans">
     {% if messages %}
-      <div id="toast-container" class="fixed top-5 right-5 space-y-3 z-50 transition-all duration-500">
+      <div id="toast-container" class="fixed top-20 right-5 space-y-3 z-[9999] transition-all duration-500">
         {% for message in messages %}
           <div
             class="
